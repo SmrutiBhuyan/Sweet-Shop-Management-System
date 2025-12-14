@@ -5,6 +5,10 @@ const { MongoMemoryServer } = require('mongodb-memory-server');
 // Set test environment
 process.env.NODE_ENV = 'test';
 
+// Set JWT secret for auth tests
+process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
+process.env.JWT_EXPIRE = '1h';
+
 // Mock console methods to keep test output clean
 global.console = {
   ...console,
@@ -31,7 +35,6 @@ beforeAll(async () => {
   process.env.MONGODB_URI = mongoUri; // Also set main URI for consistency
   
   // Set other required environment variables for tests
-  process.env.JWT_SECRET = 'test-jwt-secret-for-testing-only';
   process.env.PORT = '5000';
   process.env.FRONTEND_URL = 'http://localhost:5173';
 });

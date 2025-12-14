@@ -2,6 +2,7 @@ const express = require('express');
 const cors = require('cors');
 const { connectDB } = require('./config/database');
 const { validateEnvironment } = require('./config/environment');
+const authRoutes = require('./routes/auth.routes');
 
 // Load environment variables from .env file
 require('dotenv').config();
@@ -17,6 +18,9 @@ app.use(cors({
   origin: process.env.FRONTEND_URL || 'http://localhost:5173',
   credentials: true
 }));
+
+// Mount routes
+app.use('/api/auth', authRoutes);
 
 app.use(express.json()); // Parse JSON request bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded request bodies

@@ -63,6 +63,7 @@ const AdminPanel = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [stats, setStats] = useState(calculateStats([], []));
+  const navigate = useNavigate();
 
   // Fetch data
   useEffect(() => {
@@ -208,6 +209,7 @@ const AdminPanel = () => {
                       className="px-4 py-2 rounded-pill-btn"
                       style={{ fontWeight: '700' }}
                       href="/add-sweet"
+                      onClick={navigate}
                     >
                       <FaPlus className="me-2" />
                       Add New Sweet

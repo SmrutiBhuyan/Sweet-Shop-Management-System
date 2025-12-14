@@ -4,7 +4,7 @@ describe('Database Connection', () => {
   const originalEnv = process.env.MONGODB_URI;
   
   // Use the test database URI from .env.test
-  const TEST_DB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/sweet_shop_test';
+  const TEST_DB_URI = process.env.MONGODB_URI;
   const INVALID_DB_URI = 'mongodb://non-existent-host-12345:27017/test';
   
   beforeAll(() => {

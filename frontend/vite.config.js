@@ -35,11 +35,20 @@ export default defineConfig(({ mode }) => {
       commonjsOptions: {
         include: [/node_modules/],
         transformMixedEsModules: true
+      },
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+            'bootstrap-vendor': ['bootstrap', 'react-bootstrap'],
+            'form-vendor': ['react-hook-form', 'yup', '@hookform/resolvers']
+          }
+        }
       }
     },
     define: {
       // Define global constants for the app
-      __APP_ENV__: JSON.stringify(env.APP_ENV),
+      __APP_ENV__: JSON.stringify(env.APP_ENV || 'production'),
     }
   }
 })

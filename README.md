@@ -2,19 +2,6 @@
 
 A complete full-stack web application for managing a sweet shop business. This system allows customers to browse, search, and purchase sweets, while administrators can manage inventory, add/edit/delete sweets, and track sales.
 
-## 📋 Table of Contents
-
-- [Features](#-features)
-- [Prerequisites](#-prerequisites)
-- [Installation Guide](#-installation-guide)
-- [Configuration](#-configuration)
-- [Running the Application](#-running-the-application)
-- [Testing](#-testing)
-- [Project Structure](#-project-structure)
-- [API Documentation](#-api-documentation)
-- [Troubleshooting](#-troubleshooting)
-- [Support](#-support)
-
 ## ✨ Features
 
 ### For Customers
@@ -544,24 +531,6 @@ Content-Type: application/json
 }
 ```
 
-### Example API Usage with cURL
-
-```bash
-# Register a user
-curl -X POST http://localhost:5000/api/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{"username":"testuser","email":"test@example.com","password":"password123","role":"customer"}'
-
-# Login
-curl -X POST http://localhost:5000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{"email":"test@example.com","password":"password123"}'
-
-# Get all sweets (replace YOUR_TOKEN with actual token from login)
-curl -X GET http://localhost:5000/api/sweets \
-  -H "Authorization: Bearer YOUR_TOKEN"
-```
-
 ## 🔍 Troubleshooting
 
 ### Problem: "Cannot find module" error
@@ -715,14 +684,6 @@ server: {
 
 Don't forget to update `frontend/.env` if you change backend port!
 
-## 🎓 Learning Resources
-
-If you're new to web development, here are some helpful resources:
-
-- **Node.js**: [https://nodejs.org/en/docs/](https://nodejs.org/en/docs/)
-- **Express.js**: [https://expressjs.com/en/starter/installing.html](https://expressjs.com/en/starter/installing.html)
-- **React**: [https://react.dev/learn](https://react.dev/learn)
-- **MongoDB**: [https://www.mongodb.com/docs/](https://www.mongodb.com/docs/)
 
 ## 📄 License
 

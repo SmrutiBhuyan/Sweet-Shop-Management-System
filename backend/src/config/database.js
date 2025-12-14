@@ -5,7 +5,7 @@ const mongoose = require('mongoose');
 const connectToDatabase = async () => {
   try {
     // Get the database connection string from environment variables
-    const connectionString = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop';
+    const connectionString = process.env.MONGODB_URI 
     
     // Connect to MongoDB
     await mongoose.connect(connectionString);

@@ -125,7 +125,7 @@
     height: 100%;
     max-width: 500px; 
     max-height: 400px;
-    background-image: url('/HomePageSweet1.png'), url('image_bf8676.jpg'); 
+    background-image: url('/HomePageSweet1.png'); 
     background-size: cover;
     background-position: center;
     border-radius: 10px;

@@ -49,7 +49,7 @@ import {
   formatPrice,
   getQuantityStatus 
 } from './adminUtils';
-import './adminPanel.css';
+import './AdminPanel.css';
 
 const AdminPanel = () => {
   const { sweets, loading, error, fetchSweets } = useSweet();

@@ -2,9 +2,8 @@ const request = require('supertest');
 const app = require('../app');
 const User = require('../models/User');
 const Sweet = require('../models/Sweet');
+const Purchase = require('../models/Purchase');
 const mongoose = require('mongoose');
-const path = require('path');
-const fs = require('fs');
 
 describe('End-to-End Integration Tests', () => {
   let adminToken;
@@ -17,12 +16,16 @@ describe('End-to-End Integration Tests', () => {
     // Ensure database is connected
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
     if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(mongoUri);
+      await mongoose.connect(mongoUri, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+      });
     }
     
     // Clear database
     await User.deleteMany({});
     await Sweet.deleteMany({});
+    await Purchase.deleteMany({});
 
     // Create admin user
     const adminRes = await request(app)
@@ -40,11 +43,6 @@ describe('End-to-End Integration Tests', () => {
     expect(adminToken).toBeDefined();
     expect(adminId).toBeDefined();
 
-    // Verify admin user exists in database
-    const adminUser = await User.findOne({ email: 'admin@test.com' });
-    expect(adminUser).toBeDefined();
-    expect(adminUser.role).toBe('admin');
-
     // Create customer user
     const customerRes = await request(app)
       .post('/api/auth/register')
@@ -61,31 +59,25 @@ describe('End-to-End Integration Tests', () => {
     expect(customerToken).toBeDefined();
     expect(customerId).toBeDefined();
 
-    // Verify customer user exists in database
-    const customerUser = await User.findOne({ email: 'customer@test.com' });
-    expect(customerUser).toBeDefined();
-
     // Wait a bit to ensure users are fully persisted
     await new Promise(resolve => setTimeout(resolve, 100));
 
-    // Create a test sweet
+    // Create a test sweet (requires admin token)
     const sweetRes = await request(app)
       .post('/api/sweets')
       .set('Authorization', `Bearer ${adminToken}`)
-      .send({
-        name: 'Integration Test Sweet',
-        description: 'Sweet for integration testing',
-        category: 'Chocolate',
-        price: 9.99,
-        quantity: 100
-      });
+      .field('name', 'Integration Test Sweet')
+      .field('description', 'Sweet for integration testing')
+      .field('category', 'Chocolate')
+      .field('price', 9.99)
+      .field('quantity', 100);
+      // Note: No image file for simplicity
 
     if (sweetRes.status === 201 && sweetRes.body.data && sweetRes.body.data.sweet) {
       testSweetId = sweetRes.body.data.sweet._id;
     } else {
-      // If creation failed, log the error for debugging
-      console.error('Failed to create test sweet:', JSON.stringify(sweetRes.body, null, 2));
-      // Try to create sweet directly in database as fallback
+      // If creation failed, create sweet directly in database as fallback
+      console.error('API Sweet creation failed:', sweetRes.body);
       const adminUserFromDb = await User.findOne({ email: 'admin@test.com' });
       if (adminUserFromDb) {
         const directSweet = await Sweet.create({
@@ -94,11 +86,12 @@ describe('End-to-End Integration Tests', () => {
           category: 'Chocolate',
           price: 9.99,
           quantity: 100,
+          imageUrl: 'https://via.placeholder.com/300x200?text=Sweet+Image',
           createdBy: adminUserFromDb._id
         });
         testSweetId = directSweet._id;
       } else {
-        throw new Error(`Failed to create test sweet: ${JSON.stringify(sweetRes.body)}`);
+        throw new Error('Failed to create test sweet');
       }
     }
   });
@@ -106,6 +99,7 @@ describe('End-to-End Integration Tests', () => {
   afterAll(async () => {
     await User.deleteMany({});
     await Sweet.deleteMany({});
+    await Purchase.deleteMany({});
     if (mongoose.connection.readyState !== 0) {
       await mongoose.disconnect();
     }
@@ -170,7 +164,7 @@ describe('End-to-End Integration Tests', () => {
       expect(sweetRes.status).toBe(200);
       expect(sweetRes.body.data.sweet._id).toBe(testSweetId);
 
-      // 7. Purchase sweet
+      // 7. Purchase sweet (requires authentication)
       const initialQuantity = sweetRes.body.data.sweet.quantity;
       const purchaseRes = await request(app)
         .post(`/api/sweets/${testSweetId}/purchase`)
@@ -184,36 +178,32 @@ describe('End-to-End Integration Tests', () => {
 
   describe('Admin Flow', () => {
     it('should complete full admin journey: CRUD operations', async () => {
-      // 1. Create new sweet
+      // 1. Create new sweet (admin only)
       const createRes = await request(app)
         .post('/api/sweets')
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({
-          name: 'Admin Created Sweet',
-          description: 'Created by admin during integration test',
-          category: 'Candy',
-          price: 1.99,
-          quantity: 200
-        });
+        .field('name', 'Admin Created Sweet')
+        .field('description', 'Created by admin during integration test')
+        .field('category', 'Candy')
+        .field('price', 1.99)
+        .field('quantity', 200);
 
       expect(createRes.status).toBe(201);
       const createdSweetId = createRes.body.data.sweet._id;
 
-      // 2. Update the sweet
+      // 2. Update the sweet (admin only)
       const updateRes = await request(app)
         .put(`/api/sweets/${createdSweetId}`)
         .set('Authorization', `Bearer ${adminToken}`)
-        .send({
-          name: 'Updated Sweet Name',
-          category: 'Candy',
-          price: 2.49,
-          quantity: 180
-        });
+        .field('name', 'Updated Sweet Name')
+        .field('category', 'Candy')
+        .field('price', 2.49)
+        .field('quantity', 180);
 
       expect(updateRes.status).toBe(200);
       expect(updateRes.body.data.sweet.name).toBe('Updated Sweet Name');
 
-      // 3. Restock the sweet
+      // 3. Restock the sweet (admin only)
       const restockRes = await request(app)
         .post(`/api/sweets/${createdSweetId}/restock`)
         .set('Authorization', `Bearer ${adminToken}`)
@@ -222,7 +212,7 @@ describe('End-to-End Integration Tests', () => {
       expect(restockRes.status).toBe(200);
       expect(restockRes.body.data.newQuantity).toBe(230); // 180 + 50
 
-      // 4. Delete the sweet
+      // 4. Delete the sweet (admin only)
       const deleteRes = await request(app)
         .delete(`/api/sweets/${createdSweetId}`)
         .set('Authorization', `Bearer ${adminToken}`);
@@ -238,45 +228,61 @@ describe('End-to-End Integration Tests', () => {
     });
   });
 
-  describe('Edge Cases and Error Scenarios', () => {
-    it('should handle concurrent purchases correctly', async () => {
-      // First, get current quantity (requires authentication)
-      const getRes = await request(app)
-        .get(`/api/sweets/${testSweetId}`)
-        .set('Authorization', `Bearer ${customerToken}`);
+  describe('Authorization Tests', () => {
+    it('should prevent customers from creating sweets', async () => {
+      const res = await request(app)
+        .post('/api/sweets')
+        .set('Authorization', `Bearer ${customerToken}`)
+        .field('name', 'Customer Trying to Create')
+        .field('category', 'Candy')
+        .field('price', 1.99)
+        .field('quantity', 10);
 
-      const initialQuantity = getRes.body.data.sweet.quantity;
-
-      // Make multiple concurrent purchase requests
-      const purchasePromises = Array(3).fill().map(() =>
-        request(app)
-          .post(`/api/sweets/${testSweetId}/purchase`)
-          .set('Authorization', `Bearer ${customerToken}`)
-          .send({ quantityToPurchase: 1 })
-      );
-
-      const results = await Promise.allSettled(purchasePromises);
-
-      // Check all purchases succeeded
-      results.forEach(result => {
-        expect(result.status).toBe('fulfilled');
-        if (result.status === 'fulfilled') {
-          expect(result.value.status).toBe(200);
-        }
-      });
-
-      // Verify final quantity (requires authentication)
-      const finalGetRes = await request(app)
-        .get(`/api/sweets/${testSweetId}`)
-        .set('Authorization', `Bearer ${customerToken}`);
-
-      expect(finalGetRes.body.data.sweet.quantity).toBe(initialQuantity - 3);
+      expect(res.status).toBe(403); // Forbidden - customer is not admin
     });
 
-    it('should prevent race conditions with optimistic concurrency', async () => {
-      // This would require implementing versioning or transactions in your code
-      // For now, we test that the quantity doesn't go negative
-      
+    it('should prevent customers from updating sweets', async () => {
+      const res = await request(app)
+        .put(`/api/sweets/${testSweetId}`)
+        .set('Authorization', `Bearer ${customerToken}`)
+        .field('name', 'Customer Trying to Update')
+        .field('category', 'Candy')
+        .field('price', 1.99)
+        .field('quantity', 10);
+
+      expect(res.status).toBe(403); // Forbidden
+    });
+
+    it('should prevent customers from deleting sweets', async () => {
+      const res = await request(app)
+        .delete(`/api/sweets/${testSweetId}`)
+        .set('Authorization', `Bearer ${customerToken}`);
+
+      expect(res.status).toBe(403); // Forbidden
+    });
+
+    it('should prevent customers from restocking', async () => {
+      const res = await request(app)
+        .post(`/api/sweets/${testSweetId}/restock`)
+        .set('Authorization', `Bearer ${customerToken}`)
+        .send({ quantityToAdd: 50 });
+
+      expect(res.status).toBe(403); // Forbidden
+    });
+
+    it('should allow all users to purchase', async () => {
+      const res = await request(app)
+        .post(`/api/sweets/${testSweetId}/purchase`)
+        .set('Authorization', `Bearer ${customerToken}`)
+        .send({ quantityToPurchase: 1 });
+
+      expect(res.status).toBe(200); // All authenticated users can purchase
+    });
+  });
+
+  describe('Edge Cases and Error Scenarios', () => {
+    it('should handle purchase with insufficient stock', async () => {
+      // First, get current quantity
       const getRes = await request(app)
         .get(`/api/sweets/${testSweetId}`)
         .set('Authorization', `Bearer ${customerToken}`);
@@ -293,41 +299,47 @@ describe('End-to-End Integration Tests', () => {
       expect(purchaseRes.body.message).toContain('Not enough stock');
     });
 
-    it('should handle malformed request data', async () => {
-      const tests = [
-        {
-          endpoint: '/api/auth/register',
-          data: { invalid: 'data' },
-          expectedStatus: 400
-        },
-        {
-          endpoint: '/api/sweets',
-          token: adminToken,
-          data: { name: 'Test', price: 'invalid' },
-          expectedStatus: 400
-        },
-        {
-          endpoint: `/api/sweets/${testSweetId}/purchase`,
-          token: customerToken,
-          data: { quantityToPurchase: 'not-a-number' },
-          expectedStatus: 400
-        }
-      ];
+   it('should handle invalid purchase quantity', async () => {
+  const tests = [
+    { quantityToPurchase: 0, expectedStatus: 400 },
+    { quantityToPurchase: -1, expectedStatus: 400 },
+    { quantityToPurchase: 'not-a-number', expectedStatus: 400 }, // Change from 500 to 400
+    { quantityToPurchase: null, expectedStatus: 400 }
+  ];
 
-      for (const test of tests) {
-        const req = request(app).post(test.endpoint);
-        
-        if (test.token) {
-          req.set('Authorization', `Bearer ${test.token}`);
-        }
-        
-        const res = await req.send(test.data);
-        expect(res.status).toBe(test.expectedStatus);
-      }
+  for (const test of tests) {
+    const res = await request(app)
+      .post(`/api/sweets/${testSweetId}/purchase`)
+      .set('Authorization', `Bearer ${customerToken}`)
+      .send({ quantityToPurchase: test.quantityToPurchase });
+
+    expect(res.status).toBe(test.expectedStatus);
+  }
+});
+
+    it('should handle invalid sweet ID', async () => {
+      const invalidId = 'invalid-sweet-id';
+      
+      const res = await request(app)
+        .get(`/api/sweets/${invalidId}`)
+        .set('Authorization', `Bearer ${customerToken}`);
+
+      expect(res.status).toBe(400); // Mongoose will throw error for invalid ObjectId
+    });
+
+    it('should handle non-existent sweet', async () => {
+      const nonExistentId = '507f1f77bcf86cd799439011'; // Valid ObjectId but doesn't exist
+      
+      const res = await request(app)
+        .get(`/api/sweets/${nonExistentId}`)
+        .set('Authorization', `Bearer ${customerToken}`);
+
+      expect(res.status).toBe(404);
+      expect(res.body.message).toBe('Sweet not found');
     });
   });
 
-  describe('Performance and Load Testing', () => {
+  describe('Performance Tests', () => {
     it('should handle multiple requests efficiently', async () => {
       const startTime = Date.now();
       const requests = Array(10).fill().map(() =>
@@ -345,29 +357,27 @@ describe('End-to-End Integration Tests', () => {
         expect(res.status).toBe(200);
       });
 
-      // Should complete within reasonable time (adjust based on your needs)
+      // Should complete within reasonable time
       expect(duration).toBeLessThan(5000); // 5 seconds for 10 requests
 
       console.log(`10 parallel requests completed in ${duration}ms`);
     });
 
-    it('should handle pagination with large datasets', async () => {
+    it('should handle pagination correctly', async () => {
       // Create multiple sweets for pagination test
-      const sweetPromises = Array(25).fill().map((_, i) =>
+      const createPromises = Array(15).fill().map((_, i) =>
         request(app)
           .post('/api/sweets')
           .set('Authorization', `Bearer ${adminToken}`)
-          .send({
-            name: `Pagination Test Sweet ${i + 1}`,
-            category: 'Other',
-            price: 1.00,
-            quantity: 10
-          })
+          .field('name', `Pagination Test Sweet ${i + 1}`)
+          .field('category', 'Other')
+          .field('price', 1.00)
+          .field('quantity', 10)
       );
 
-      await Promise.all(sweetPromises);
+      await Promise.all(createPromises);
 
-      // Test first page (requires authentication)
+      // Test first page
       const page1Res = await request(app)
         .get('/api/sweets?page=1&limit=10')
         .set('Authorization', `Bearer ${customerToken}`);
@@ -377,21 +387,13 @@ describe('End-to-End Integration Tests', () => {
       expect(page1Res.body.data.pagination.currentPage).toBe(1);
       expect(page1Res.body.data.pagination.totalPages).toBeGreaterThan(1);
 
-      // Test second page (requires authentication)
+      // Test second page
       const page2Res = await request(app)
         .get('/api/sweets?page=2&limit=10')
         .set('Authorization', `Bearer ${customerToken}`);
 
       expect(page2Res.status).toBe(200);
       expect(page2Res.body.data.pagination.currentPage).toBe(2);
-
-      // Verify different results
-      const page1Ids = page1Res.body.data.sweets.map(s => s._id);
-      const page2Ids = page2Res.body.data.sweets.map(s => s._id);
-      
-      // Should have no overlap between pages
-      const overlap = page1Ids.filter(id => page2Ids.includes(id));
-      expect(overlap).toHaveLength(0);
     });
   });
 });

@@ -195,6 +195,15 @@ const getSweetById = async (req, res) => {
     
   } catch (error) {
     console.error('Get sweet error:', error.message);
+    
+    // Handle CastError (invalid ObjectId)
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid sweet ID format'
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Server error while fetching sweet'
@@ -288,16 +297,21 @@ const deleteSweet = async (req, res) => {
 };
 
 // Controller to purchase a sweet (decrease quantity)
+// Controller to purchase a sweet (decrease quantity)
 const purchaseSweet = async (req, res) => {
   try {
     const { quantityToPurchase } = req.body;
     
-    if (!quantityToPurchase || quantityToPurchase <= 0) {
+    // Validate quantity
+    if (!quantityToPurchase || isNaN(quantityToPurchase) || quantityToPurchase <= 0) {
       return res.status(400).json({
         success: false,
-        message: 'Valid purchase quantity is required'
+        message: 'Valid purchase quantity is required (must be a positive number)'
       });
     }
+    
+    // Convert to number
+    const purchaseQty = Number(quantityToPurchase);
     
     // Find the sweet
     const sweet = await Sweet.findById(req.params.id);
@@ -310,7 +324,7 @@ const purchaseSweet = async (req, res) => {
     }
     
     // Check if enough quantity is available
-    if (sweet.quantity < quantityToPurchase) {
+    if (sweet.quantity < purchaseQty) {
       return res.status(400).json({
         success: false,
         message: `Not enough stock. Available: ${sweet.quantity}`
@@ -318,20 +332,20 @@ const purchaseSweet = async (req, res) => {
     }
     
     // Calculate total amount
-    const totalAmount = sweet.price * quantityToPurchase;
+    const totalAmount = sweet.price * purchaseQty;
     
     // Create purchase record
     const purchase = await Purchase.create({
       user: req.user._id,
       sweet: sweet._id,
-      quantity: quantityToPurchase,
+      quantity: purchaseQty,
       price: sweet.price,
       totalAmount: totalAmount,
       status: 'completed'
     });
     
     // Decrease the quantity
-    sweet.quantity -= quantityToPurchase;
+    sweet.quantity -= purchaseQty;
     await sweet.save();
     
     res.status(200).json({
@@ -340,7 +354,7 @@ const purchaseSweet = async (req, res) => {
       data: {
         sweet,
         purchase: purchase,
-        purchasedQuantity: quantityToPurchase,
+        purchasedQuantity: purchaseQty,
         remainingQuantity: sweet.quantity,
         totalAmount: totalAmount
       }
@@ -348,6 +362,23 @@ const purchaseSweet = async (req, res) => {
     
   } catch (error) {
     console.error('Purchase sweet error:', error.message);
+    
+    // Handle CastError (invalid ObjectId)
+    if (error.name === 'CastError') {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid sweet ID'
+      });
+    }
+    
+    // Handle validation errors
+    if (error.name === 'ValidationError') {
+      return res.status(400).json({
+        success: false,
+        message: error.message
+      });
+    }
+    
     res.status(500).json({
       success: false,
       message: 'Server error during purchase'

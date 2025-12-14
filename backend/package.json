@@ -6,9 +6,12 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "jest",
-    "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test": "jest --testPathPattern=tests --testTimeout=10000",
+    "test:watch": "jest --testPathPattern=tests --watch --testTimeout=10000",
+    "test:model": "jest src/tests/Sweet.model.test.js --testTimeout=10000",
+    "test:coverage": "jest --testPathPattern=tests --coverage --testTimeout=10000",
+    "seed": "node src/utils/seedData.js",
+    "seed:dev": "NODE_ENV=development node src/utils/seedData.js"
   },
   "keywords": [
     "sweet-shop",
@@ -24,13 +27,14 @@
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.0.1"
+    "mongoose": "^6.13.0"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",
     "@types/jest": "^30.0.0",
     "@types/supertest": "^6.0.3",
     "jest": "^30.2.0",
+    "mongodb-memory-server": "^10.4.1",
     "nodemon": "^3.1.11",
     "supertest": "^7.1.4"
   }

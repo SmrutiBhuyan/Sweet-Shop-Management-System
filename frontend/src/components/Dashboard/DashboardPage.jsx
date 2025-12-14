@@ -45,7 +45,7 @@ import {
   calculateRewardsProgress
 } from './dashboardUtils';
 import { getImageUrl } from '../../utils/imageUtils';
-import './dashboardPage.css';
+import './DashboardPage.css';
 
 const DashboardPage = () => {
   const { user, isAdmin } = useAuth();

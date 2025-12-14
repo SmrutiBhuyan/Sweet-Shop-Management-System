@@ -20,6 +20,10 @@
   "devDependencies": {
     "concurrently": "^8.2.2"
   },
+  "overrides": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
   "keywords": ["sweet-shop", "react", "express", "mongodb", "tdd"],
   "author": "",
   "license": "MIT"

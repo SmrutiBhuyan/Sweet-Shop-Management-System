@@ -38,48 +38,18 @@ Before you begin, make sure you have the following software installed on your co
 
 ### Required Software
 
-1. **Node.js** (Version 18 or higher)
-   - **What it is**: A JavaScript runtime that allows you to run JavaScript on your computer
-   - **How to install**: 
-     - Visit [https://nodejs.org/](https://nodejs.org/)
-     - Download the LTS (Long Term Support) version
-     - Run the installer and follow the instructions
-     - Verify installation by opening a terminal/command prompt and typing: `node --version`
-   - **Why you need it**: Both the frontend and backend of this application run on Node.js
-
+1. **Node.js** (Version 20 or higher)
 2. **MongoDB** (Version 6.0 or higher)
-   - **What it is**: A database that stores all your application data (users, sweets, purchases, etc.)
-   - **How to install**:
-     - **Option A - Local Installation**:
-       - Visit [https://www.mongodb.com/try/download/community](https://www.mongodb.com/try/download/community)
-       - Download MongoDB Community Server for your operating system
-       - Run the installer and follow the instructions
-       - On Windows: MongoDB usually starts automatically as a service
-       - On Mac/Linux: You may need to start it manually with `mongod` command
-     - **Option B - MongoDB Atlas (Cloud - Recommended for beginners)**:
-       - Visit [https://www.mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas)
-       - Create a free account
-       - Create a free cluster (takes a few minutes)
-       - Get your connection string (we'll use this later)
-   - **Why you need it**: All your application data is stored in MongoDB
-
 3. **Git** (Optional but recommended)
-   - **What it is**: Version control system
-   - **How to install**: Visit [https://git-scm.com/downloads](https://git-scm.com/downloads)
-   - **Why you need it**: To clone/download the project code
-
 4. **Code Editor** (Recommended: Visual Studio Code)
-   - **What it is**: A program to edit code files
-   - **How to install**: Visit [https://code.visualstudio.com/](https://code.visualstudio.com/)
-   - **Why you need it**: To view and edit the project files
 
 ### Verify Your Installation
 
 Open a terminal (Command Prompt on Windows, Terminal on Mac/Linux) and run these commands to verify everything is installed:
 
 ```bash
-node --version    # Should show v18.x.x or higher
-npm --version     # Should show 9.x.x or higher (comes with Node.js)
+node --version    # Should show v20.x.x or higher
+npm --version     # Should show 10.x.x or higher (comes with Node.js)
 mongod --version  # Should show MongoDB version (if installed locally)
 ```
 
@@ -154,8 +124,6 @@ Environment variables are configuration settings that tell the application how t
    ```
 
 2. Create a file named `.env` in the `backend` folder:
-   - **Windows**: Right-click in the backend folder → New → Text Document → Name it `.env` (make sure to remove .txt extension)
-   - **Mac/Linux**: Use terminal: `touch .env`
 
 3. Open the `.env` file in a text editor and add the following content:
 

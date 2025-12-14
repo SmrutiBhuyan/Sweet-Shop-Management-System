@@ -2,19 +2,21 @@ const mongoose = require('mongoose');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
+// Use a test database
+const TEST_MONGODB_URI = process.env.TEST_MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
+
 describe('User Model', () => {
   beforeAll(async () => {
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
-    if (mongoose.connection.readyState === 0) {
-      await mongoose.connect(mongoUri);
-    }
+    // Connect to test database
+    await mongoose.connect(TEST_MONGODB_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
   });
 
   afterAll(async () => {
-    await User.deleteMany({});
-    if (mongoose.connection.readyState !== 0) {
-      await mongoose.disconnect();
-    }
+    await mongoose.connection.dropDatabase();
+    await mongoose.connection.close();
   });
 
   beforeEach(async () => {
@@ -69,25 +71,22 @@ describe('User Model', () => {
     it('should require unique username', async () => {
       const timestamp = Date.now();
       const uniqueUsername = `testuser_${timestamp}`;
-      const user1 = await User.create({
+      
+      // Create first user
+      await User.create({
         username: uniqueUsername,
         email: `test1_${timestamp}@example.com`,
         password: 'password123'
       });
 
-      // Ensure user1 is saved
-      expect(user1._id).toBeDefined();
-
-      // Wait a bit to ensure the first user is fully saved
-      await new Promise(resolve => setTimeout(resolve, 100));
-
+      // Try to create second user with same username
       const user2 = new User({
         username: uniqueUsername,
         email: `test2_${timestamp}@example.com`,
         password: 'password456'
       });
 
-      // Should throw a duplicate key error (MongoServerError) or validation error
+      // Should throw a duplicate key error
       await expect(user2.save()).rejects.toThrow();
     });
 
@@ -167,34 +166,28 @@ describe('User Model', () => {
       
       // Update non-password field
       user.username = `updateduser_${timestamp}`;
-      await user.save();
+      const updatedUser = await user.save();
 
-      expect(user.password).toBe(originalHash);
+      expect(updatedUser.password).toBe(originalHash);
     });
 
     it('should re-hash password if modified', async () => {
       const timestamp = Date.now();
       const uniqueUsername = `testuser_${timestamp}`;
       const uniqueEmail = `test_${timestamp}@example.com`;
+      
+      // Create user
       const user = await User.create({
         username: uniqueUsername,
         email: uniqueEmail,
         password: 'password123'
       });
 
-      // Ensure user is saved
-      expect(user._id).toBeDefined();
-
-      // Get the original hash by selecting password field
-      const userWithPassword = await User.findById(user._id.toString()).select('+password');
-      expect(userWithPassword).toBeDefined();
-      expect(userWithPassword).not.toBeNull();
-      
-      const originalHash = userWithPassword.password;
+      const originalHash = user.password;
       
       // Update password
-      userWithPassword.password = 'newpassword456';
-      const savedUser = await userWithPassword.save();
+      user.password = 'newpassword456';
+      const savedUser = await user.save();
 
       expect(savedUser.password).not.toBe(originalHash);
       expect(await bcrypt.compare('newpassword456', savedUser.password)).toBe(true);
@@ -220,7 +213,7 @@ describe('User Model', () => {
     it('should not return password by default', async () => {
       const timestamp = Date.now();
       const username = `testuser_${timestamp}`;
-      const user = await User.create({
+      await User.create({
         username: username,
         email: `test_${timestamp}@example.com`,
         password: 'password123'
@@ -233,7 +226,7 @@ describe('User Model', () => {
     it('should return password when explicitly selected', async () => {
       const timestamp = Date.now();
       const username = `testuser_${timestamp}`;
-      const user = await User.create({
+      await User.create({
         username: username,
         email: `test_${timestamp}@example.com`,
         password: 'password123'

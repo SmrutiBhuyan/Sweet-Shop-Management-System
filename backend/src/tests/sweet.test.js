@@ -6,6 +6,7 @@
  */
 
 const request = require('supertest');
+const mongoose = require('mongoose');
 const app = require('../app');
 const Sweet = require('../models/Sweet');
 const User = require('../models/User');
@@ -20,6 +21,12 @@ describe('Sweet API', () => {
 
   // Setup: Create test users before all tests
   beforeAll(async () => {
+    // Connect to test database
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(mongoUri);
+    }
+
     // Clear database
     await User.deleteMany({});
     await Sweet.deleteMany({});
@@ -42,18 +49,18 @@ describe('Sweet API', () => {
 
     // Generate tokens
     adminToken = jwt.sign(
-      { userId: adminUser._id },
+      { userId: adminUser._id.toString() },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
     customerToken = jwt.sign(
-      { userId: customerUser._id },
+      { userId: customerUser._id.toString() },
       process.env.JWT_SECRET,
       { expiresIn: '1h' }
     );
 
-    // Create a test sweet
+    // Create a test sweet for general tests
     testSweet = await Sweet.create({
       name: 'Test Chocolate Bar',
       description: 'A delicious test chocolate bar',
@@ -66,10 +73,19 @@ describe('Sweet API', () => {
 
   // Clean up after each test
   afterEach(async () => {
-    // Keep test users and test sweet, but clean up any new sweets created during tests
+    // Clean up all sweets except the main testSweet
     await Sweet.deleteMany({ 
       _id: { $ne: testSweet._id } 
     });
+  });
+
+  // Clean up after all tests
+  afterAll(async () => {
+    await Sweet.deleteMany({});
+    await User.deleteMany({});
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
   });
 
   describe('GET /api/sweets', () => {
@@ -93,6 +109,15 @@ describe('Sweet API', () => {
     });
 
     it('should filter sweets by category', async () => {
+      // Create another chocolate sweet for testing
+      await Sweet.create({
+        name: 'Another Chocolate',
+        category: 'Chocolate',
+        price: 3.99,
+        quantity: 30,
+        createdBy: adminUser._id
+      });
+
       const response = await request(app)
         .get('/api/sweets?category=Chocolate')
         .set('Authorization', `Bearer ${customerToken}`)
@@ -111,10 +136,12 @@ describe('Sweet API', () => {
         .expect(200);
 
       expect(response.body.success).toBe(true);
-      response.body.data.sweets.forEach(sweet => {
-        expect(sweet.price).toBeGreaterThanOrEqual(1);
-        expect(sweet.price).toBeLessThanOrEqual(5);
-      });
+      if (response.body.data.sweets.length > 0) {
+        response.body.data.sweets.forEach(sweet => {
+          expect(sweet.price).toBeGreaterThanOrEqual(1);
+          expect(sweet.price).toBeLessThanOrEqual(5);
+        });
+      }
     });
   });
 
@@ -145,10 +172,12 @@ describe('Sweet API', () => {
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.sweets).toBeInstanceOf(Array);
-      response.body.data.sweets.forEach(sweet => {
-        expect(sweet.price).toBeGreaterThanOrEqual(1);
-        expect(sweet.price).toBeLessThanOrEqual(5);
-      });
+      if (response.body.data.sweets.length > 0) {
+        response.body.data.sweets.forEach(sweet => {
+          expect(sweet.price).toBeGreaterThanOrEqual(1);
+          expect(sweet.price).toBeLessThanOrEqual(5);
+        });
+      }
     });
 
     it('should search by name and price range combined', async () => {
@@ -174,7 +203,7 @@ describe('Sweet API', () => {
   describe('GET /api/sweets/:id', () => {
     it('should get a sweet by ID with authentication', async () => {
       const response = await request(app)
-        .get(`/api/sweets/${testSweet._id}`)
+        .get(`/api/sweets/${testSweet._id.toString()}`)
         .set('Authorization', `Bearer ${customerToken}`)
         .expect(200);
 
@@ -184,16 +213,16 @@ describe('Sweet API', () => {
 
     it('should reject request without authentication', async () => {
       const response = await request(app)
-        .get(`/api/sweets/${testSweet._id}`)
+        .get(`/api/sweets/${testSweet._id.toString()}`)
         .expect(401);
 
       expect(response.body.success).toBe(false);
     });
 
     it('should return 404 for non-existent sweet', async () => {
-      const fakeId = '507f1f77bcf86cd799439011';
+      const fakeId = new mongoose.Types.ObjectId();
       const response = await request(app)
-        .get(`/api/sweets/${fakeId}`)
+        .get(`/api/sweets/${fakeId.toString()}`)
         .set('Authorization', `Bearer ${customerToken}`)
         .expect(404);
 
@@ -266,13 +295,13 @@ describe('Sweet API', () => {
     it('should update a sweet as admin', async () => {
       const updates = {
         name: 'Updated Chocolate Bar',
-        category: 'Chocolate', // Required field
+        category: 'Chocolate',
         price: 3.99,
         quantity: 75
       };
 
       const response = await request(app)
-        .put(`/api/sweets/${testSweet._id}`)
+        .put(`/api/sweets/${testSweet._id.toString()}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send(updates)
         .expect(200);
@@ -284,7 +313,7 @@ describe('Sweet API', () => {
 
     it('should reject update without authentication', async () => {
       const response = await request(app)
-        .put(`/api/sweets/${testSweet._id}`)
+        .put(`/api/sweets/${testSweet._id.toString()}`)
         .send({ name: 'Hacked Name' })
         .expect(401);
 
@@ -304,7 +333,7 @@ describe('Sweet API', () => {
       });
 
       const response = await request(app)
-        .delete(`/api/sweets/${sweetToDelete._id}`)
+        .delete(`/api/sweets/${sweetToDelete._id.toString()}`)
         .set('Authorization', `Bearer ${adminToken}`)
         .expect(200);
 
@@ -317,7 +346,7 @@ describe('Sweet API', () => {
 
     it('should reject delete without authentication', async () => {
       const response = await request(app)
-        .delete(`/api/sweets/${testSweet._id}`)
+        .delete(`/api/sweets/${testSweet._id.toString()}`)
         .expect(401);
 
       expect(response.body.success).toBe(false);
@@ -325,23 +354,48 @@ describe('Sweet API', () => {
   });
 
   describe('POST /api/sweets/:id/purchase (Authenticated)', () => {
+    let freshTestSweet;
+
+    beforeEach(async () => {
+      // Create a fresh sweet for purchase tests
+      freshTestSweet = await Sweet.create({
+        name: 'Fresh Chocolate Bar',
+        description: 'A fresh test chocolate bar',
+        category: 'Chocolate',
+        price: 2.99,
+        quantity: 50,
+        createdBy: adminUser._id
+      });
+    });
+
+    afterEach(async () => {
+      // Clean up the fresh test sweet
+      if (freshTestSweet && freshTestSweet._id) {
+        await Sweet.deleteOne({ _id: freshTestSweet._id });
+      }
+    });
+
     it('should allow customer to purchase a sweet', async () => {
       const purchaseQuantity = 5;
-      const initialQuantity = testSweet.quantity;
+      const initialQuantity = freshTestSweet.quantity;
 
       const response = await request(app)
-        .post(`/api/sweets/${testSweet._id}/purchase`)
+        .post(`/api/sweets/${freshTestSweet._id.toString()}/purchase`)
         .set('Authorization', `Bearer ${customerToken}`)
         .send({ quantityToPurchase: purchaseQuantity })
         .expect(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.remainingQuantity).toBe(initialQuantity - purchaseQuantity);
+      
+      // Verify the quantity was updated in database
+      const updatedSweet = await Sweet.findById(freshTestSweet._id);
+      expect(updatedSweet.quantity).toBe(initialQuantity - purchaseQuantity);
     });
 
     it('should reject purchase without authentication', async () => {
       const response = await request(app)
-        .post(`/api/sweets/${testSweet._id}/purchase`)
+        .post(`/api/sweets/${freshTestSweet._id.toString()}/purchase`)
         .send({ quantityToPurchase: 1 })
         .expect(401);
 
@@ -349,7 +403,6 @@ describe('Sweet API', () => {
     });
 
     it('should reject purchase if insufficient stock', async () => {
-      // Create a sweet with low stock
       const lowStockSweet = await Sweet.create({
         name: 'Low Stock Sweet',
         category: 'Candy',
@@ -359,38 +412,66 @@ describe('Sweet API', () => {
       });
 
       const response = await request(app)
-        .post(`/api/sweets/${lowStockSweet._id}/purchase`)
+        .post(`/api/sweets/${lowStockSweet._id.toString()}/purchase`)
         .set('Authorization', `Bearer ${customerToken}`)
         .send({ quantityToPurchase: 10 })
         .expect(400);
 
       expect(response.body.success).toBe(false);
+      
+      // Clean up
+      await Sweet.deleteOne({ _id: lowStockSweet._id });
     });
   });
 
   describe('POST /api/sweets/:id/restock (Admin Only)', () => {
+    let freshTestSweet;
+
+    beforeEach(async () => {
+      // Create a fresh sweet for restock tests
+      freshTestSweet = await Sweet.create({
+        name: 'Restock Chocolate Bar',
+        description: 'A fresh test chocolate bar for restocking',
+        category: 'Chocolate',
+        price: 2.99,
+        quantity: 50,
+        createdBy: adminUser._id
+      });
+    });
+
+    afterEach(async () => {
+      // Clean up the fresh test sweet
+      if (freshTestSweet && freshTestSweet._id) {
+        await Sweet.deleteOne({ _id: freshTestSweet._id });
+      }
+    });
+
     it('should allow admin to restock a sweet', async () => {
       // Get current quantity first
       const getResponse = await request(app)
-        .get(`/api/sweets/${testSweet._id}`)
+        .get(`/api/sweets/${freshTestSweet._id.toString()}`)
         .set('Authorization', `Bearer ${adminToken}`);
       
       const initialQuantity = getResponse.body.data.sweet.quantity;
       const restockQuantity = 25;
 
       const response = await request(app)
-        .post(`/api/sweets/${testSweet._id}/restock`)
+        .post(`/api/sweets/${freshTestSweet._id.toString()}/restock`)
         .set('Authorization', `Bearer ${adminToken}`)
         .send({ quantityToAdd: restockQuantity })
         .expect(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.newQuantity).toBe(initialQuantity + restockQuantity);
+      
+      // Verify the quantity was updated in database
+      const updatedSweet = await Sweet.findById(freshTestSweet._id);
+      expect(updatedSweet.quantity).toBe(initialQuantity + restockQuantity);
     });
 
     it('should reject restock without authentication', async () => {
       const response = await request(app)
-        .post(`/api/sweets/${testSweet._id}/restock`)
+        .post(`/api/sweets/${freshTestSweet._id.toString()}/restock`)
         .send({ quantityToAdd: 10 })
         .expect(401);
 
@@ -399,7 +480,7 @@ describe('Sweet API', () => {
 
     it('should reject restock by customer', async () => {
       const response = await request(app)
-        .post(`/api/sweets/${testSweet._id}/restock`)
+        .post(`/api/sweets/${freshTestSweet._id.toString()}/restock`)
         .set('Authorization', `Bearer ${customerToken}`)
         .send({ quantityToAdd: 10 })
         .expect(403);
@@ -408,4 +489,3 @@ describe('Sweet API', () => {
     });
   });
 });
-

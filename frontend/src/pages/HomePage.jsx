@@ -1,170 +1,402 @@
-import { Link } from 'react-router-dom'
-import { FaArrowRight, FaStar } from 'react-icons/fa'
-import SweetGrid from '../components/sweets/SweetGrid'
-import Button from '../components/ui/Button'
-import styles from './HomePage.module.css'
+import React, { useState, useEffect } from 'react';
+import { Container, Row, Col, Card, Button, Form, Spinner, Alert, Badge } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
+import { useSweet } from '../contexts/SweetContext';
+import { toast } from 'react-toastify';
+import Carousel from 'react-bootstrap/Carousel'; // Import Carousel for a dynamic header
 
-// Mock data - replace with API call later
-const featuredSweets = [
-  {
-    id: '1',
-    name: 'Chocolate Truffle Delight',
-    description: 'Rich dark chocolate truffle with a soft ganache center, dusted with cocoa powder.',
-    category: 'Chocolates',
-    price: 35.50,
-    quantityInStock: 15,
-    imageUrl: 'https://placehold.co/400x300/4A0404/FFFFFF?text=Chocolate+Truffle',
-    rating: 4.8,
-    reviewCount: 42
-  },
-  {
-    id: '2',
-    name: 'Strawberry Cheesecake Slice',
-    description: 'Creamy cheesecake on a buttery biscuit base, topped with fresh strawberry compote.',
-    category: 'Cakes',
-    price: 120.00,
-    quantityInStock: 8,
-    imageUrl: 'https://placehold.co/400x300/FFC0CB/000000?text=Strawberry+Cheesecake',
-    rating: 4.9,
-    reviewCount: 28
-  },
-  {
-    id: '3',
-    name: 'Classic Chocolate Chip Cookies',
-    description: 'Freshly baked cookies with melty chocolate chips, crispy edges and chewy centers.',
-    category: 'Cookies',
-    price: 15.00,
-    quantityInStock: 50,
-    imageUrl: 'https://placehold.co/400x300/8B4513/FFFFFF?text=Chocolate+Chip+Cookie',
-    rating: 4.7,
-    reviewCount: 56
-  }
-]
+// --- New Aesthetic Hero Component ---
+const SweetHero = () => {
+  return (
+    <div className="sweet-hero-section mb-5">
+      <Carousel controls={false} indicators={false} interval={5000} pause={false}>
+        {/* Slide 1: Using the box of sweets/almonds image */}
+        <Carousel.Item>
+          <div 
+            className="hero-image-overlay" 
+            style={{ 
+              backgroundImage: 'url(/HomePageSweet1.png)', 
+              height: '450px', 
+              backgroundSize: 'cover', 
+              backgroundPosition: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              textAlign: 'center',
+              position: 'relative'
+            }}
+          >
+            {/* Dark Overlay for Readability */}
+            <div style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.4)'
+            }}></div>
+            
+            {/* Content centered on top of the image */}
+            <div style={{ position: 'relative', zIndex: 1, padding: '20px' }}>
+                <h1 className="display-2 fw-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
+                    Indulge in Sweet Perfection
+                </h1>
+                <p className="lead fs-4" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>
+                    Exquisite flavors crafted just for you.
+                </p>
+                <Button variant="light" size="lg" as={Link} to="#sweets-list" className="mt-3 shadow-lg">
+                    Shop Now
+                </Button>
+            </div>
+          </div>
+        </Carousel.Item>
+
+        {/* Slide 2: Using the baklava-style sweets image */}
+        <Carousel.Item>
+          <div 
+            className="hero-image-overlay" 
+            style={{ 
+              backgroundImage: 'url(/HomePageSweet2.png)', 
+              height: '450px', 
+              backgroundSize: 'cover', 
+              backgroundPosition: 'center',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              textAlign: 'center',
+              position: 'relative'
+            }}
+          >
+            {/* Dark Overlay for Readability */}
+            <div style={{
+                position: 'absolute',
+                top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.5)'
+            }}></div>
+            
+            {/* Content centered on top of the image */}
+            <div style={{ position: 'relative', zIndex: 1, padding: '20px' }}>
+                <h1 className="display-2 fw-bold" style={{ textShadow: '2px 2px 4px rgba(0,0,0,0.7)' }}>
+                    Artisan Treats & Delights
+                </h1>
+                <p className="lead fs-4" style={{ textShadow: '1px 1px 3px rgba(0,0,0,0.7)' }}>
+                    Handmade goodness from around the world.
+                </p>
+                <Button variant="warning" size="lg" as={Link} to="#sweets-list" className="mt-3 shadow-lg">
+                    View Our Collection
+                </Button>
+            </div>
+          </div>
+        </Carousel.Item>
+      </Carousel>
+    </div>
+  );
+};
+// --- End New Aesthetic Hero Component ---
+
 
 const HomePage = () => {
+  const { sweets, loading, error, fetchSweets, purchaseSweet } = useSweet();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [priceRange, setPriceRange] = useState({ min: '', max: '' });
+
+  // Available categories for filter
+  const categories = [
+    'All',
+    'Chocolate',
+    'Candy',
+    'Pastry',
+    'Cookie',
+    'Cake',
+    'Ice Cream',
+    'Traditional',
+    'Sugar-Free',
+    'Other'
+  ];
+
+  // Fetch sweets on component mount
+  useEffect(() => {
+    fetchSweets();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
+  // Handle search
+  const handleSearch = (e) => {
+    e.preventDefault();
+    fetchSweets({
+      query: searchTerm,
+      category: categoryFilter === 'All' ? '' : categoryFilter,
+      minPrice: priceRange.min,
+      maxPrice: priceRange.max
+    });
+  };
+
+  // Handle purchase
+  const handlePurchase = async (sweetId, sweetName) => {
+    const user = JSON.parse(localStorage.getItem('user'));
+    const token = localStorage.getItem('token');
+    
+    if (!user || !token) {
+      toast.error('Please login to make a purchase');
+      return;
+    }
+    
+    try {
+      await purchaseSweet(sweetId, 1);
+      toast.success(`Successfully added ${sweetName} to cart!`);
+    } catch (err) {
+      toast.error(err.message || 'Purchase failed');
+    }
+  };
+
+  // Reset filters
+  const handleResetFilters = () => {
+    setSearchTerm('');
+    setCategoryFilter('');
+    setPriceRange({ min: '', max: '' });
+    fetchSweets();
+  };
+
+  if (loading) {
+    return (
+      <Container className="text-center mt-5">
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading sweets...</span>
+        </Spinner>
+        <p className="mt-3">Loading delicious sweets...</p>
+      </Container>
+    );
+  }
+
+  if (error) {
+    return (
+      <Alert variant="danger" className="mt-4">
+        <Alert.Heading>Error Loading Sweets</Alert.Heading>
+        <p>{error}</p>
+      </Alert>
+    );
+  }
+
   return (
-    <div className={styles.homePage}>
-      {/* Hero Section */}
-      <section className={styles.hero}>
-        <div className={`container ${styles.heroContainer}`}>
-          <div className={styles.heroContent}>
-            <h1 className={styles.heroTitle}>
-              Welcome to the <span className={styles.highlight}>Sweetest</span> Shop in Town
+    <Container fluid className="p-0"> {/* Use fluid container for full-width hero */}
+      
+      {/* 1. New Aesthetic Hero Section with Images */}
+      <SweetHero />
+      
+      <Container> {/* Wrap the rest of the content in a standard container */}
+        
+        <Row className="mb-5 text-center">
+          <Col>
+            <h1 className="display-4 text-primary mb-3">
+              🍬 Browse Our Sweet Collection
             </h1>
-            <p className={styles.heroDescription}>
-              Indulge in our handcrafted sweets, made with love and the finest ingredients. 
-              From decadent chocolates to fluffy pastries, we have something for every sweet tooth.
+            <p className="lead">
+              Use the filters below to find exactly what you crave!
             </p>
-            <div className={styles.heroButtons}>
-              <Link to="/shop">
-                <Button variant="primary" size="large">
-                  Shop Now <FaArrowRight />
-                </Button>
-              </Link>
-              <Link to="/login">
-                <Button variant="outline" size="large">
-                  Join Sweet Club
-                </Button>
-              </Link>
-            </div>
-          </div>
-          <div className={styles.heroImage}>
-            <div className={styles.imagePlaceholder}>
-              🍰🍪🍫
-            </div>
-          </div>
-        </div>
-      </section>
+          </Col>
+        </Row>
 
-      {/* Features Section */}
-      <section className={styles.features}>
-        <div className="container">
-          <h2 className={styles.sectionTitle}>Why Choose Our Sweet Shop?</h2>
-          <div className={styles.featuresGrid}>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>🍫</div>
-              <h3 className={styles.featureTitle}>Premium Quality</h3>
-              <p className={styles.featureDescription}>
-                We use only the finest ingredients sourced from trusted suppliers.
-              </p>
-            </div>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>🎨</div>
-              <h3 className={styles.featureTitle}>Handcrafted</h3>
-              <p className={styles.featureDescription}>
-                Each sweet is carefully crafted by our expert confectioners.
-              </p>
-            </div>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>🚚</div>
-              <h3 className={styles.featureTitle}>Fast Delivery</h3>
-              <p className={styles.featureDescription}>
-                Fresh sweets delivered to your doorstep within 24 hours.
-              </p>
-            </div>
-            <div className={styles.featureCard}>
-              <div className={styles.featureIcon}>💝</div>
-              <h3 className={styles.featureTitle}>Custom Orders</h3>
-              <p className={styles.featureDescription}>
-                Special occasions? We create custom sweets for your events.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+        {/* Search and Filter Section */}
+        <Card className="mb-5 shadow-lg border-0 bg-light">
+          <Card.Body>
+            <Form onSubmit={handleSearch}>
+              <Row className="g-3 align-items-end">
+                <Col md={4}>
+                  <Form.Group>
+                    <Form.Label className="fw-bold">Search Sweets</Form.Label>
+                    <Form.Control
+                      type="text"
+                      placeholder="Search by name or category..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                  </Form.Group>
+                </Col>
+                
+                <Col md={3}>
+                  <Form.Group>
+                    <Form.Label className="fw-bold">Category</Form.Label>
+                    <Form.Select
+                      value={categoryFilter}
+                      onChange={(e) => setCategoryFilter(e.target.value)}
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </Form.Select>
+                  </Form.Group>
+                </Col>
+                
+                <Col md={2}>
+                  <Form.Group>
+                    <Form.Label className="fw-bold">Min Price (₹)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="Min"
+                      value={priceRange.min}
+                      onChange={(e) => setPriceRange({ ...priceRange, min: e.target.value })}
+                      min="0"
+                      step="0.01"
+                    />
+                  </Form.Group>
+                </Col>
+                
+                <Col md={2}>
+                  <Form.Group>
+                    <Form.Label className="fw-bold">Max Price (₹)</Form.Label>
+                    <Form.Control
+                      type="number"
+                      placeholder="Max"
+                      value={priceRange.max}
+                      onChange={(e) => setPriceRange({ ...priceRange, max: e.target.value })}
+                      min="0"
+                      step="0.01"
+                    />
+                  </Form.Group>
+                </Col>
+                
+                <Col md={1} className="d-flex align-items-end">
+                  <Button type="submit" variant="primary" className="w-100">
+                    🔍 Search
+                  </Button>
+                </Col>
+              </Row>
+              
+              <div className="text-center mt-3">
+                  <Button 
+                    variant="outline-secondary" 
+                    onClick={handleResetFilters}
+                    size="sm"
+                  >
+                    ✕ Clear Filters
+                  </Button>
+              </div>
+            </Form>
+          </Card.Body>
+        </Card>
 
-      {/* Featured Sweets */}
-      <section className={styles.featuredSweets}>
-        <div className="container">
-          <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>Featured Sweets</h2>
-            <Link to="/shop" className={styles.viewAll}>
-              View All <FaArrowRight />
-            </Link>
-          </div>
-          <SweetGrid sweets={featuredSweets} loading={false} />
+        {/* Sweets Grid */}
+        <div id="sweets-list">
+            <Row xs={1} md={2} lg={3} xl={4} className="g-4">
+              {sweets.length > 0 ? (
+                sweets.map((sweet) => (
+                  <Col key={sweet._id}>
+                    <Card className="h-100 shadow-sm sweet-card-hover">
+                      <Card.Img 
+                        variant="top" 
+                        src={sweet.imageUrl} 
+                        alt={sweet.name}
+                        style={{ height: '200px', objectFit: 'cover' }}
+                        onError={(e) => {
+                          // Fallback to default image if loading fails
+                          e.target.src = 'https://via.placeholder.com/400x300/CCCCCC/666666?text=Sweet+Image';
+                        }}
+                      />
+                      
+                      <Card.Body className="d-flex flex-column">
+                        <Card.Title className="text-primary fw-bold">{sweet.name}</Card.Title>
+                        <Card.Subtitle className="mb-2 text-muted">
+                          <Badge bg="info" className="p-2">{sweet.category}</Badge>
+                        </Card.Subtitle>
+                        
+                        <Card.Text className="flex-grow-1 text-truncate-3-lines">
+                          {sweet.description || 'A delicious treat for your sweet tooth!'}
+                        </Card.Text>
+                        
+                        <div className="mt-auto">
+                          <div className="d-flex justify-content-between align-items-center mb-3">
+                            <span className="h4 text-success mb-0">
+                              ₹{sweet.price.toFixed(2)}
+                            </span>
+                            <Badge 
+                              bg={sweet.quantity > 0 ? 'success' : 'danger'}
+                              className="px-3 py-2 fw-normal"
+                            >
+                              {sweet.quantity > 0 ? `${sweet.quantity} in stock` : 'Out of stock'}
+                            </Badge>
+                          </div>
+                          
+                          <div className="d-grid gap-2">
+                            <Button
+                              variant="outline-primary"
+                              as={Link}
+                              to={`/sweets/${sweet._id}`}
+                            >
+                              View Details
+                            </Button>
+                            
+                            <Button
+                              variant="success"
+                              disabled={sweet.quantity === 0}
+                              onClick={() => handlePurchase(sweet._id, sweet.name)}
+                            >
+                              {sweet.quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
+                            </Button>
+                          </div>
+                        </div>
+                      </Card.Body>
+                      
+                      <Card.Footer className="text-end bg-light">
+                        <small className="text-muted">
+                          Added by {sweet.createdBy?.username || 'Unknown'}
+                        </small>
+                      </Card.Footer>
+                    </Card>
+                  </Col>
+                ))
+              ) : (
+                <Col xs={12}>
+                  <Alert variant="info" className="text-center my-5 p-4">
+                    <Alert.Heading>😔 No Sweets Found</Alert.Heading>
+                    <p>Try resetting your filters or check back later!</p>
+                    <Button variant="info" onClick={handleResetFilters}>
+                        Show All Sweets
+                    </Button>
+                  </Alert>
+                </Col>
+              )}
+            </Row>
         </div>
-      </section>
 
-      {/* Testimonials */}
-      <section className={styles.testimonials}>
-        <div className="container">
-          <h2 className={styles.sectionTitle}>What Our Customers Say</h2>
-          <div className={styles.testimonialsGrid}>
-            <div className={styles.testimonialCard}>
-              <div className={styles.testimonialRating}>
-                {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} className={styles.starIcon} />
-                ))}
-              </div>
-              <p className={styles.testimonialText}>
-                "The best chocolates I've ever had! Will definitely order again."
-              </p>
-              <div className={styles.testimonialAuthor}>
-                <strong>Priya Sharma</strong>
-                <span>Regular Customer</span>
-              </div>
-            </div>
-            
-            <div className={styles.testimonialCard}>
-              <div className={styles.testimonialRating}>
-                {[...Array(5)].map((_, i) => (
-                  <FaStar key={i} className={styles.starIcon} />
-                ))}
-              </div>
-              <p className={styles.testimonialText}>
-                "Perfect for my daughter's birthday party. Everyone loved them!"
-              </p>
-              <div className={styles.testimonialAuthor}>
-                <strong>Raj Patel</strong>
-                <span>Event Organizer</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  )
-}
+        {/* Stats Section */}
+        <Row className="mt-5 mb-5">
+          <Col>
+            <Card className="text-center shadow-lg bg-primary text-white">
+              <Card.Body>
+                <Row>
+                  <Col md={3} className="border-end border-white">
+                    <h3 className="display-6">{sweets.length}</h3>
+                    <p className="fw-bold mb-0">Total Sweets</p>
+                  </Col>
+                  <Col md={3} className="border-end border-white">
+                    <h3 className="display-6">
+                      {sweets.filter(s => s.quantity > 0).length}
+                    </h3>
+                    <p className="fw-bold mb-0">In Stock</p>
+                  </Col>
+                  <Col md={3} className="border-end border-white">
+                    <h3 className="display-6">
+                      {sweets.filter(s => s.quantity === 0).length}
+                    </h3>
+                    <p className="fw-bold mb-0">Out of Stock</p>
+                  </Col>
+                  <Col md={3}>
+                    <h3 className="display-6">
+                      ₹{sweets.reduce((sum, sweet) => sum + sweet.price, 0).toFixed(2)}
+                    </h3>
+                    <p className="fw-bold mb-0">Total Value</p>
+                  </Col>
+                </Row>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+        
+      </Container>
+    </Container>
+  );
+};
 
-export default HomePage
+export default HomePage;

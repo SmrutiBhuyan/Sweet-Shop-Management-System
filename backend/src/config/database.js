@@ -1,82 +1,38 @@
+// This file sets up the connection to MongoDB database
 const mongoose = require('mongoose');
 
-/**
- * Connect to MongoDB database
- * This function establishes connection to MongoDB using Mongoose
- */
-const connectDB = async () => {
+// Function to connect to MongoDB
+const connectToDatabase = async () => {
   try {
-    // Use test database for testing environment
-    const dbUri = process.env.NODE_ENV === 'test' 
-      ? process.env.MONGODB_URI_TEST 
-      : process.env.MONGODB_URI;
-
-    console.log(`🔄 Connecting to MongoDB: ${dbUri.replace(/:.*@/, ':****@')}`);
+    // Get the database connection string from environment variables
+    const connectionString = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop';
     
-    // For Mongoose v7.5.0+, no need for useNewUrlParser and useUnifiedTopology
-    const connection = await mongoose.connect(dbUri);
-
-    console.log(`✅ MongoDB Connected: ${connection.connection.host}`);
+    // Connect to MongoDB
+    await mongoose.connect(connectionString);
     
-    // Handle connection events
+    console.log('✅ Successfully connected to MongoDB database');
+    
+    // Handle connection errors after initial connection
     mongoose.connection.on('error', (error) => {
-      console.error(`❌ MongoDB connection error: ${error}`);
+      console.error('❌ MongoDB connection error:', error);
     });
-
+    
+    // Handle when MongoDB disconnects
     mongoose.connection.on('disconnected', () => {
       console.log('⚠️ MongoDB disconnected');
     });
-
-    // Handle app termination
+    
+    // Handle application termination
     process.on('SIGINT', async () => {
       await mongoose.connection.close();
-      console.log('👋 MongoDB connection closed through app termination');
+      console.log('👋 MongoDB connection closed due to app termination');
       process.exit(0);
     });
-
+    
   } catch (error) {
-    console.error(`❌ MongoDB connection failed: ${error.message}`);
-    
-    // Only exit process if not in test environment
-    if (process.env.NODE_ENV !== 'test') {
-      process.exit(1);
-    }
-    
-    // In test environment, re-throw the error
-    throw error;
+    console.error('❌ Failed to connect to MongoDB:', error.message);
+    process.exit(1); // Exit the app if can't connect to database
   }
 };
 
-/**
- * Disconnect from MongoDB database
- * Useful for testing
- */
-const disconnectDB = async () => {
-  try {
-    await mongoose.connection.close();
-    console.log('✅ MongoDB disconnected');
-  } catch (error) {
-    console.error(`❌ Error disconnecting from MongoDB: ${error.message}`);
-  }
-};
-
-/**
- * Clear all data from database
- * Useful for testing
- */
-const clearDB = async () => {
-  try {
-    const collections = mongoose.connection.collections;
-    
-    for (const key in collections) {
-      const collection = collections[key];
-      await collection.deleteMany({});
-    }
-    
-    console.log('✅ Database cleared');
-  } catch (error) {
-    console.error(`❌ Error clearing database: ${error.message}`);
-  }
-};
-
-module.exports = { connectDB, disconnectDB, clearDB };
+module.exports = connectToDatabase;

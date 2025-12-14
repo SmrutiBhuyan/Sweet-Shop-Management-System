@@ -1,47 +1,14 @@
-const { MongoMemoryServer } = require('mongodb-memory-server');
+// Test setup file for Jest
+// This file runs before all tests
 
-// Jest setup file - runs before each test file
-
-// Set test environment
+// Set test environment variables
 process.env.NODE_ENV = 'test';
-
-// Set JWT secret for auth tests
-process.env.JWT_SECRET = 'test-jwt-secret-key-for-testing-only';
+process.env.JWT_SECRET = 'test_jwt_secret_key_for_testing_only';
 process.env.JWT_EXPIRE = '1h';
-
-// Mock console methods to keep test output clean
-global.console = {
-  ...console,
-  log: jest.fn(),   // Suppress console.log in tests
-  error: jest.fn(), // Suppress console.error in tests
-  warn: jest.fn(),   // Suppress console.warn in tests
-  info: jest.fn()    // Suppress console.info in tests
-};
+process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
+process.env.PORT = 5001; // Use different port for tests
+process.env.FRONTEND_URL = 'http://localhost:5173';
 
 // Increase timeout for database operations
-jest.setTimeout(10000);
+jest.setTimeout(30000);
 
-// Global variables for MongoDB Memory Server
-let mongoServer;
-
-// Setup MongoDB Memory Server before all tests
-beforeAll(async () => {
-  // Start MongoDB Memory Server
-  mongoServer = await MongoMemoryServer.create();
-  const mongoUri = mongoServer.getUri();
-  
-  // Set the test database URI
-  process.env.MONGODB_URI_TEST = mongoUri;
-  process.env.MONGODB_URI = mongoUri; // Also set main URI for consistency
-  
-  // Set other required environment variables for tests
-  process.env.PORT = '5000';
-  process.env.FRONTEND_URL = 'http://localhost:5173';
-});
-
-// Clean up after all tests
-afterAll(async () => {
-  if (mongoServer) {
-    await mongoServer.stop();
-  }
-});

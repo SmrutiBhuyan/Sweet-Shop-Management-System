@@ -1,4 +1,5 @@
 const Sweet = require('../models/Sweet');
+const Purchase = require('../models/Purchase');
 
 // Controller to create a new sweet
 const createSweet = async (req, res) => {
@@ -9,8 +10,18 @@ const createSweet = async (req, res) => {
     let imageUrl = 'https://via.placeholder.com/300x200?text=Sweet+Image';
     if (req.file) {
       // Construct the URL for the uploaded image
-      const baseUrl = req.protocol + '://' + req.get('host');
+      // Use the full URL with protocol and host
+      const protocol = req.protocol || 'http';
+      const host = req.get('host') || 'localhost:5000';
+      const baseUrl = `${protocol}://${host}`;
+      // Ensure filename is properly encoded
+      const encodedFilename = encodeURIComponent(req.file.filename);
       imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+      
+      // Log for debugging
+      console.log('Image uploaded:', req.file.filename);
+      console.log('Image path:', req.file.path);
+      console.log('Image URL:', imageUrl);
     }
     
     // Create new sweet with the logged-in user as creator
@@ -105,31 +116,52 @@ const getAllSweets = async (req, res) => {
   }
 };
 
-// Controller to search sweets by name or category
+// Controller to search sweets by name, category, or price range
 const searchSweets = async (req, res) => {
   try {
-    const { query } = req.query;
+    const { query, minPrice, maxPrice } = req.query;
     
-    if (!query || query.trim() === '') {
+    // Build search filter
+    const searchFilter = {};
+    
+    // Search by name or category if query is provided
+    if (query && query.trim() !== '') {
+      searchFilter.$or = [
+        { name: { $regex: query, $options: 'i' } }, // Case-insensitive search
+        { category: { $regex: query, $options: 'i' } }
+      ];
+    }
+    
+    // Search by price range if provided
+    if (minPrice || maxPrice) {
+      searchFilter.price = {};
+      if (minPrice) {
+        searchFilter.price.$gte = parseFloat(minPrice);
+      }
+      if (maxPrice) {
+        searchFilter.price.$lte = parseFloat(maxPrice);
+      }
+    }
+    
+    // If no search criteria provided, return error
+    if (!query && !minPrice && !maxPrice) {
       return res.status(400).json({
         success: false,
-        message: 'Search query is required'
+        message: 'Search query, minPrice, or maxPrice is required'
       });
     }
     
-    // Search in name and category fields
-    const sweets = await Sweet.find({
-      $or: [
-        { name: { $regex: query, $options: 'i' } }, // Case-insensitive search
-        { category: { $regex: query, $options: 'i' } }
-      ]
-    }).populate('createdBy', 'username email');
+    // Execute search
+    const sweets = await Sweet.find(searchFilter)
+      .populate('createdBy', 'username email')
+      .sort({ createdAt: -1 });
     
     res.status(200).json({
       success: true,
       data: {
         sweets,
-        searchQuery: query,
+        searchQuery: query || null,
+        priceRange: minPrice || maxPrice ? { min: minPrice || null, max: maxPrice || null } : null,
         count: sweets.length
       }
     });
@@ -186,8 +218,14 @@ const updateSweet = async (req, res) => {
     
     // Handle image upload - if new file is uploaded, use it
     if (req.file) {
-      const baseUrl = req.protocol + '://' + req.get('host');
+      const protocol = req.protocol || 'http';
+      const host = req.get('host') || 'localhost:5000';
+      const baseUrl = `${protocol}://${host}`;
       updateData.imageUrl = `${baseUrl}/uploads/${req.file.filename}`;
+      
+      // Log for debugging
+      console.log('Image updated:', req.file.filename);
+      console.log('Image URL:', updateData.imageUrl);
     }
     // If no file uploaded, keep existing imageUrl (don't update it)
     
@@ -279,6 +317,19 @@ const purchaseSweet = async (req, res) => {
       });
     }
     
+    // Calculate total amount
+    const totalAmount = sweet.price * quantityToPurchase;
+    
+    // Create purchase record
+    const purchase = await Purchase.create({
+      user: req.user._id,
+      sweet: sweet._id,
+      quantity: quantityToPurchase,
+      price: sweet.price,
+      totalAmount: totalAmount,
+      status: 'completed'
+    });
+    
     // Decrease the quantity
     sweet.quantity -= quantityToPurchase;
     await sweet.save();
@@ -288,8 +339,10 @@ const purchaseSweet = async (req, res) => {
       message: 'Purchase successful',
       data: {
         sweet,
+        purchase: purchase,
         purchasedQuantity: quantityToPurchase,
-        remainingQuantity: sweet.quantity
+        remainingQuantity: sweet.quantity,
+        totalAmount: totalAmount
       }
     });
     

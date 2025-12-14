@@ -13,9 +13,12 @@ import {
   InputGroup,
   Form,
 } from 'react-bootstrap';
-import { useSweet } from '../contexts/SweetContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useSweet } from '../../contexts/SweetContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { sweetAPI } from '../../services/api';
 import { toast } from 'react-toastify';
+import { getImageUrl, handleImageError } from '../../utils/imageUtils';
+import './SweetDetailPage.css';
 
 const SweetDetailPage = () => {
   const { id } = useParams();
@@ -40,37 +43,26 @@ const SweetDetailPage = () => {
     
     try {
       const result = await getSweetById(id);
-      setSweet(result.data.sweet);
+      const sweetData = result.data.sweet;
+      setSweet(sweetData);
       
-      // In a real app, you would fetch related sweets from API
-      // For now, we'll create mock related sweets
-      const mockRelated = [
-        {
-          _id: '1',
-          name: 'Kaju Katli',
-          category: 'Traditional',
-          price: 450.00,
-          quantity: 15,
-          imageUrl: 'https://images.unsplash.com/photo-1575377427642-087cf684f29d?w=400&h=300&fit=crop',
-        },
-        {
-          _id: '2',
-          name: 'Barfi',
-          category: 'Traditional',
-          price: 35.00,
-          quantity: 25,
-          imageUrl: 'https://images.unsplash.com/photo-1563729784474-d77dbb933a9e?w-400&h=300&fit=crop',
-        },
-        {
-          _id: '3',
-          name: 'Rasmalai',
-          category: 'Traditional',
-          price: 40.00,
-          quantity: 5,
-          imageUrl: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&h=300&fit=crop',
-        },
-      ];
-      setRelatedSweets(mockRelated);
+      // Fetch related sweets from the same category, excluding current sweet
+      try {
+        const relatedResponse = await sweetAPI.getAllSweets({ 
+          category: sweetData.category,
+          limit: 10 
+        });
+        
+        // Filter out current sweet and get top 3
+        const related = relatedResponse.data.sweets
+          .filter(s => s._id !== id)
+          .slice(0, 3);
+        setRelatedSweets(related);
+      } catch (err) {
+        console.error('Failed to fetch related sweets:', err);
+        // Fallback to empty array if related sweets fetch fails
+        setRelatedSweets([]);
+      }
     } catch (err) {
       setError(err.message || 'Failed to load sweet details');
       toast.error('Failed to load sweet details');
@@ -101,88 +93,101 @@ const SweetDetailPage = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <Container className="text-center mt-5">
-        <Spinner animation="border" role="status">
-          <span className="visually-hidden">Loading sweet details...</span>
-        </Spinner>
-        <p className="mt-3">Loading delicious details...</p>
-      </Container>
-    );
-  }
+  const handleQuantityChange = (e) => {
+    const value = Math.max(1, Math.min(sweet.quantity, parseInt(e.target.value) || 1));
+    setPurchaseQuantity(value);
+  };
 
-  if (error || !sweet) {
-    return (
-      <Container className="mt-5">
-        <Alert variant="danger">
-          <Alert.Heading>Error Loading Sweet</Alert.Heading>
-          <p>{error || 'Sweet not found'}</p>
-          <Button variant="primary" onClick={() => navigate('/')}>
-            Back to Home
-          </Button>
-        </Alert>
-      </Container>
-    );
-  }
+  const decreaseQuantity = () => {
+    setPurchaseQuantity(prev => Math.max(1, prev - 1));
+  };
+
+  const increaseQuantity = () => {
+    setPurchaseQuantity(prev => Math.min(sweet.quantity, prev + 1));
+  };
+
+  const renderLoading = () => (
+    <Container className="sweet-detail-loading text-center mt-5">
+      <Spinner animation="border" role="status">
+        <span className="visually-hidden">Loading sweet details...</span>
+      </Spinner>
+      <p className="mt-3">Loading delicious details...</p>
+    </Container>
+  );
+
+  const renderError = () => (
+    <Container className="sweet-detail-error mt-5">
+      <Alert variant="danger">
+        <Alert.Heading>Error Loading Sweet</Alert.Heading>
+        <p>{error || 'Sweet not found'}</p>
+        <Button variant="primary" onClick={() => navigate('/')}>
+          Back to Home
+        </Button>
+      </Alert>
+    </Container>
+  );
+
+  if (loading) return renderLoading();
+  if (error || !sweet) return renderError();
 
   return (
-    <Container className="mt-4">
+    <Container className="sweet-detail-container mt-4">
       {/* Back Button */}
       <Button
         variant="outline-secondary"
         onClick={() => navigate(-1)}
-        className="mb-4"
+        className="back-button mb-4"
       >
         ← Back
       </Button>
 
       {/* Main Sweet Details */}
-      <Row className="mb-5">
+      <Row className="main-details-section mb-5">
         <Col lg={6} className="mb-4">
-          <Card className="shadow-sm">
+          <Card className="product-image-card shadow-sm">
             <Card.Img
               variant="top"
-              src={sweet.imageUrl}
+              src={getImageUrl(sweet.imageUrl)}
               alt={sweet.name}
-              style={{ height: '400px', objectFit: 'cover' }}
+              className="product-image"
+              onError={(e) => handleImageError(e, sweet.imageUrl)}
             />
           </Card>
         </Col>
         
         <Col lg={6}>
-          <Card className="shadow-sm h-100">
+          <Card className="product-info-card shadow-sm h-100">
             <Card.Body>
-              <div className="d-flex justify-content-between align-items-start mb-3">
+              <div className="product-header mb-3">
                 <div>
-                  <h1 className="text-primary">{sweet.name}</h1>
-                  <Badge bg="info" className="fs-6">
+                  <h1 className="product-title text-primary">{sweet.name}</h1>
+                  <Badge bg="info" className="category-badge fs-6">
                     {sweet.category}
                   </Badge>
                 </div>
-                <div className="text-end">
-                  <h2 className="text-success">₹{sweet.price.toFixed(2)}</h2>
-                  <Badge bg={sweet.quantity > 0 ? 'success' : 'danger'} className="fs-6">
+                <div className="price-stock-section">
+                  <h2 className="product-price text-success">₹{sweet.price.toFixed(2)}</h2>
+                  <Badge bg={sweet.quantity > 0 ? 'success' : 'danger'} className="stock-badge fs-6">
                     {sweet.quantity > 0 ? `${sweet.quantity} in stock` : 'Out of stock'}
                   </Badge>
                 </div>
               </div>
               
-              <Card.Text className="mb-4">
+              <Card.Text className="product-description mb-4">
                 {sweet.description || 'No description available for this sweet.'}
               </Card.Text>
               
-              <div className="mb-4">
+              <div className="product-details mb-4">
                 <h5>Product Details</h5>
-                <div className="d-flex justify-content-between border-bottom py-2">
+                <div className="detail-item">
                   <span>Category:</span>
                   <span>{sweet.category}</span>
                 </div>
-                <div className="d-flex justify-content-between border-bottom py-2">
+                <div className="detail-item">
                   <span>Price:</span>
-                  <span className="text-success fw-bold">₹{sweet.price.toFixed(2)}</span>
+                  <span className="price-value text-success fw-bold">₹{sweet.price.toFixed(2)}</span>
                 </div>
-                <div className="d-flex justify-content-between border-bottom py-2">
+                <div className="detail-item">
                   <span>Stock Status:</span>
                   <span>
                     {sweet.quantity > 0 ? (
@@ -192,18 +197,19 @@ const SweetDetailPage = () => {
                     )}
                   </span>
                 </div>
-                <div className="d-flex justify-content-between py-2">
+                <div className="detail-item">
                   <span>Added by:</span>
                   <span>{sweet.createdBy?.username || 'Unknown'}</span>
                 </div>
               </div>
               
-              <div className="d-grid gap-3">
+              <div className="action-buttons">
                 <Button
                   variant={sweet.quantity > 0 ? 'success' : 'secondary'}
                   size="lg"
                   disabled={sweet.quantity === 0}
                   onClick={handlePurchaseClick}
+                  className="purchase-button"
                 >
                   {sweet.quantity > 0 ? 'Add to Cart' : 'Out of Stock'}
                 </Button>
@@ -212,12 +218,13 @@ const SweetDetailPage = () => {
                   variant="outline-primary"
                   size="lg"
                   onClick={() => navigate('/')}
+                  className="continue-shopping-button"
                 >
                   Continue Shopping
                 </Button>
               </div>
               
-              <div className="mt-4 text-center">
+              <div className="shipping-info mt-4 text-center">
                 <small className="text-muted">
                   🚚 Free shipping on orders over ₹500
                 </small>
@@ -228,26 +235,27 @@ const SweetDetailPage = () => {
       </Row>
 
       {/* Related Products */}
-      <Row className="mb-5">
+      <Row className="related-products-section mb-5">
         <Col>
-          <h3 className="mb-4">You might also like</h3>
+          <h3 className="related-products-title mb-4">You might also like</h3>
           <Row xs={1} md={2} lg={3} className="g-4">
             {relatedSweets.map((relatedSweet) => (
               <Col key={relatedSweet._id}>
-                <Card className="h-100 shadow-sm hover-shadow">
+                <Card className="related-product-card h-100 shadow-sm">
                   <Card.Img
                     variant="top"
-                    src={relatedSweet.imageUrl}
+                    src={getImageUrl(relatedSweet.imageUrl)}
+                    onError={(e) => handleImageError(e, relatedSweet.imageUrl)}
                     alt={relatedSweet.name}
-                    style={{ height: '200px', objectFit: 'cover' }}
+                    className="related-product-image"
                   />
                   <Card.Body>
-                    <Card.Title>{relatedSweet.name}</Card.Title>
+                    <Card.Title className="related-product-name">{relatedSweet.name}</Card.Title>
                     <Card.Subtitle className="mb-2 text-muted">
                       {relatedSweet.category}
                     </Card.Subtitle>
-                    <div className="d-flex justify-content-between align-items-center">
-                      <span className="h5 text-success mb-0">
+                    <div className="related-product-info">
+                      <span className="related-product-price text-success">
                         ₹{relatedSweet.price.toFixed(2)}
                       </span>
                       <Badge bg={relatedSweet.quantity > 0 ? 'success' : 'danger'}>
@@ -256,7 +264,7 @@ const SweetDetailPage = () => {
                     </div>
                     <Button
                       variant="outline-primary"
-                      className="w-100 mt-3"
+                      className="view-details-button w-100 mt-3"
                       onClick={() => navigate(`/sweets/${relatedSweet._id}`)}
                     >
                       View Details
@@ -274,66 +282,76 @@ const SweetDetailPage = () => {
         show={purchaseModalShow}
         onHide={() => setPurchaseModalShow(false)}
         centered
+        className="purchase-modal"
       >
         <Modal.Header closeButton>
           <Modal.Title>Purchase {sweet.name}</Modal.Title>
         </Modal.Header>
         
         <Modal.Body>
-          <div className="text-center mb-4">
+          <div className="modal-image-container text-center mb-4">
             <img
-              src={sweet.imageUrl}
+              src={getImageUrl(sweet.imageUrl)}
               alt={sweet.name}
-              style={{ width: '200px', height: '150px', objectFit: 'cover', borderRadius: '8px' }}
+              onError={(e) => handleImageError(e, sweet.imageUrl)}
+              className="modal-product-image"
             />
           </div>
           
-          <Form.Group className="mb-4">
+          <Form.Group className="quantity-selector mb-4">
             <Form.Label>Quantity:</Form.Label>
             <InputGroup>
               <Button
                 variant="outline-secondary"
-                onClick={() => setPurchaseQuantity(Math.max(1, purchaseQuantity - 1))}
+                onClick={decreaseQuantity}
+                className="quantity-btn"
               >
                 -
               </Button>
               <Form.Control
                 type="number"
                 value={purchaseQuantity}
-                onChange={(e) => {
-                  const value = Math.max(1, Math.min(sweet.quantity, parseInt(e.target.value) || 1));
-                  setPurchaseQuantity(value);
-                }}
+                onChange={handleQuantityChange}
                 min="1"
                 max={sweet.quantity}
+                className="quantity-input"
               />
               <Button
                 variant="outline-secondary"
-                onClick={() => setPurchaseQuantity(Math.min(sweet.quantity, purchaseQuantity + 1))}
+                onClick={increaseQuantity}
+                className="quantity-btn"
               >
                 +
               </Button>
             </InputGroup>
-            <Form.Text className="text-muted">
+            <Form.Text className="quantity-hint text-muted">
               Maximum: {sweet.quantity} units
             </Form.Text>
           </Form.Group>
           
-          <div className="text-center">
-            <h4 className="text-success">
+          <div className="total-price text-center">
+            <h4 className="total-amount text-success">
               Total: ₹{(sweet.price * purchaseQuantity).toFixed(2)}
             </h4>
-            <p className="text-muted">
+            <p className="unit-price text-muted">
               Price per unit: ₹{sweet.price.toFixed(2)}
             </p>
           </div>
         </Modal.Body>
         
         <Modal.Footer>
-          <Button variant="secondary" onClick={() => setPurchaseModalShow(false)}>
+          <Button 
+            variant="secondary" 
+            onClick={() => setPurchaseModalShow(false)}
+            className="cancel-button"
+          >
             Cancel
           </Button>
-          <Button variant="success" onClick={handleConfirmPurchase}>
+          <Button 
+            variant="success" 
+            onClick={handleConfirmPurchase}
+            className="confirm-purchase-button"
+          >
             Confirm Purchase
           </Button>
         </Modal.Footer>

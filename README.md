@@ -123,6 +123,20 @@ Before you begin, ensure you have the following installed:
 
 3. **Set up environment variables**
 
+   Create `.env` files in both `backend` and `frontend` directories by copying the example files:
+   
+   ```bash
+   # Backend
+   cd backend
+   cp .env.example .env
+   # Edit .env with your configuration
+   
+   # Frontend
+   cd ../frontend
+   cp .env.example .env
+   # Edit .env with your configuration
+   ```
+
    **Backend** (`backend/.env`):
    ```env
    MONGODB_URI=mongodb://localhost:27017/sweet_shop
@@ -138,7 +152,7 @@ Before you begin, ensure you have the following installed:
    VITE_API_URL=http://localhost:5000/api
    ```
 
-   > **Note**: For MongoDB Atlas, replace `MONGODB_URI` with your Atlas connection string.
+   > **Note**: For MongoDB Atlas, replace `MONGODB_URI` with your Atlas connection string. See `.env.example` files in each directory for reference.
 
 4. **Start MongoDB**
    
@@ -179,19 +193,17 @@ Before you begin, ensure you have the following installed:
 - `POST /api/auth/login` - Login user
 - `GET /api/auth/me` - Get current user (Protected)
 
-### Sweets (Public)
-- `GET /api/sweets` - Get all sweets (with pagination & filters)
-- `GET /api/sweets/search?query=chocolate` - Search sweets
-- `GET /api/sweets/:id` - Get sweet by ID
-
 ### Sweets (Protected - Requires Authentication)
-- `POST /api/sweets/:id/purchase` - Purchase a sweet
+- `GET /api/sweets` - Get all sweets (with pagination & filters)
+- `GET /api/sweets/search?query=chocolate&minPrice=10&maxPrice=50` - Search sweets by name, category, or price range
+- `GET /api/sweets/:id` - Get sweet by ID
+- `POST /api/sweets/:id/purchase` - Purchase a sweet (decrease quantity)
 
-### Sweets (Admin Only)
+### Sweets (Admin Only - Requires Admin Role)
 - `POST /api/sweets` - Create a new sweet
 - `PUT /api/sweets/:id` - Update a sweet
 - `DELETE /api/sweets/:id` - Delete a sweet
-- `POST /api/sweets/:id/restock` - Restock a sweet
+- `POST /api/sweets/:id/restock` - Restock a sweet (increase quantity)
 
 ### Example API Request
 
@@ -239,13 +251,27 @@ cd backend && npm test -- --coverage
 
 ### Test Coverage
 
-The project includes comprehensive tests for:
-- User authentication (register, login)
-- Sweet CRUD operations
-- Purchase and restock functionality
-- Input validation
-- Error handling
-- Protected routes
+To generate a test coverage report:
+
+```bash
+# Backend coverage report
+cd backend && npm test -- --coverage
+
+# The coverage report will be generated in backend/coverage/index.html
+```
+
+**Current Test Coverage:**
+- User authentication (register, login) - ✅ Tested
+- Sweet CRUD operations - ✅ Tested
+- Purchase and restock functionality - ✅ Tested
+- Input validation - ✅ Tested
+- Error handling - ✅ Tested
+- Protected routes - ✅ Tested
+- Admin authorization - ✅ Tested
+- Search functionality - ✅ Tested
+
+**Test Report:**
+For detailed test results and coverage metrics, run the test suite with coverage enabled. The generated HTML report provides line-by-line coverage analysis.
 
 ## 👤 User Roles
 
@@ -273,6 +299,23 @@ This project follows clean code principles:
 4. **Error Handling**: Comprehensive error handling throughout
 5. **Validation**: Input validation on both frontend and backend
 6. **Security**: Passwords are hashed, JWT tokens for authentication
+
+## 📸 Screenshots
+
+### Application Interface
+The Sweet Shop Management System features a modern, responsive interface with:
+
+- **Homepage**: Browse all available sweets with search and filter functionality
+- **Dashboard**: Personalized dashboard for customers and admin users
+- **Admin Panel**: Complete inventory management interface for administrators
+- **Sweet Details**: Detailed view of each sweet with purchase options
+
+> **Note**: Screenshots of the application in action should be added here. Take screenshots of:
+> - Homepage with sweets grid
+> - User dashboard
+> - Admin panel
+> - Search and filter functionality
+> - Purchase flow
 
 ## 📝 Example Usage
 

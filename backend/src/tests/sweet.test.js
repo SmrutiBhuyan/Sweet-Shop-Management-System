@@ -73,9 +73,10 @@ describe('Sweet API', () => {
   });
 
   describe('GET /api/sweets', () => {
-    it('should get all sweets without authentication', async () => {
+    it('should get all sweets with authentication', async () => {
       const response = await request(app)
         .get('/api/sweets')
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -83,9 +84,18 @@ describe('Sweet API', () => {
       expect(response.body.data.pagination).toBeDefined();
     });
 
+    it('should reject request without authentication', async () => {
+      const response = await request(app)
+        .get('/api/sweets')
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+    });
+
     it('should filter sweets by category', async () => {
       const response = await request(app)
         .get('/api/sweets?category=Chocolate')
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -97,6 +107,7 @@ describe('Sweet API', () => {
     it('should filter sweets by price range', async () => {
       const response = await request(app)
         .get('/api/sweets?minPrice=1&maxPrice=5')
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
@@ -108,18 +119,52 @@ describe('Sweet API', () => {
   });
 
   describe('GET /api/sweets/search', () => {
-    it('should search sweets by name', async () => {
+    it('should search sweets by name with authentication', async () => {
       const response = await request(app)
         .get('/api/sweets/search?query=chocolate')
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.sweets).toBeInstanceOf(Array);
     });
 
-    it('should return error if query is missing', async () => {
+    it('should reject search without authentication', async () => {
+      const response = await request(app)
+        .get('/api/sweets/search?query=chocolate')
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+    });
+
+    it('should search sweets by price range', async () => {
+      const response = await request(app)
+        .get('/api/sweets/search?minPrice=1&maxPrice=5')
+        .set('Authorization', `Bearer ${customerToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.sweets).toBeInstanceOf(Array);
+      response.body.data.sweets.forEach(sweet => {
+        expect(sweet.price).toBeGreaterThanOrEqual(1);
+        expect(sweet.price).toBeLessThanOrEqual(5);
+      });
+    });
+
+    it('should search by name and price range combined', async () => {
+      const response = await request(app)
+        .get('/api/sweets/search?query=chocolate&minPrice=1&maxPrice=10')
+        .set('Authorization', `Bearer ${customerToken}`)
+        .expect(200);
+
+      expect(response.body.success).toBe(true);
+      expect(response.body.data.sweets).toBeInstanceOf(Array);
+    });
+
+    it('should return error if no search criteria provided', async () => {
       const response = await request(app)
         .get('/api/sweets/search')
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(400);
 
       expect(response.body.success).toBe(false);
@@ -127,19 +172,29 @@ describe('Sweet API', () => {
   });
 
   describe('GET /api/sweets/:id', () => {
-    it('should get a sweet by ID', async () => {
+    it('should get a sweet by ID with authentication', async () => {
       const response = await request(app)
         .get(`/api/sweets/${testSweet._id}`)
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(200);
 
       expect(response.body.success).toBe(true);
       expect(response.body.data.sweet.name).toBe(testSweet.name);
     });
 
+    it('should reject request without authentication', async () => {
+      const response = await request(app)
+        .get(`/api/sweets/${testSweet._id}`)
+        .expect(401);
+
+      expect(response.body.success).toBe(false);
+    });
+
     it('should return 404 for non-existent sweet', async () => {
       const fakeId = '507f1f77bcf86cd799439011';
       const response = await request(app)
         .get(`/api/sweets/${fakeId}`)
+        .set('Authorization', `Bearer ${customerToken}`)
         .expect(404);
 
       expect(response.body.success).toBe(false);
@@ -211,6 +266,7 @@ describe('Sweet API', () => {
     it('should update a sweet as admin', async () => {
       const updates = {
         name: 'Updated Chocolate Bar',
+        category: 'Chocolate', // Required field
         price: 3.99,
         quantity: 75
       };
@@ -314,8 +370,13 @@ describe('Sweet API', () => {
 
   describe('POST /api/sweets/:id/restock (Admin Only)', () => {
     it('should allow admin to restock a sweet', async () => {
+      // Get current quantity first
+      const getResponse = await request(app)
+        .get(`/api/sweets/${testSweet._id}`)
+        .set('Authorization', `Bearer ${adminToken}`);
+      
+      const initialQuantity = getResponse.body.data.sweet.quantity;
       const restockQuantity = 25;
-      const initialQuantity = testSweet.quantity;
 
       const response = await request(app)
         .post(`/api/sweets/${testSweet._id}/restock`)

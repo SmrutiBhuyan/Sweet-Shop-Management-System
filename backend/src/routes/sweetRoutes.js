@@ -8,15 +8,13 @@ const {
 } = require('../middleware/validation');
 const upload = require('../middleware/upload');
 
-// Public routes (no authentication required for viewing)
-router.get('/', sweetController.getAllSweets);
-router.get('/search', sweetController.searchSweets);
-router.get('/:id', sweetController.getSweetById);
-
 // Protected routes (require authentication)
 router.use(protectRoute); // All routes below this require authentication
 
-// Purchase route (available to all authenticated users)
+// Protected routes (available to all authenticated users)
+router.get('/', sweetController.getAllSweets);
+router.get('/search', sweetController.searchSweets);
+router.get('/:id', sweetController.getSweetById);
 router.post('/:id/purchase', sweetController.purchaseSweet);
 
 // Admin-only routes

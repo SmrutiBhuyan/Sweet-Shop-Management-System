@@ -26,9 +26,12 @@ export const SweetProvider = ({ children }) => {
     setError(null);
     
     try {
-      // If there's a search query, use the search endpoint
-      if (filters.query && filters.query.trim() !== '') {
-        const response = await sweetAPI.searchSweets(filters.query);
+      // If there's a search query or price range, use the search endpoint
+      if (filters.query && filters.query.trim() !== '' || filters.minPrice || filters.maxPrice) {
+        const response = await sweetAPI.searchSweets(
+          filters.query || '', 
+          { minPrice: filters.minPrice, maxPrice: filters.maxPrice }
+        );
         setSweets(response.data.sweets);
       } else {
         // Otherwise, use the regular getAllSweets with filters

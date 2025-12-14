@@ -1,0 +1,436 @@
+/* dashboard.css */
+
+/* Container Customization */
+@media (min-width: 1400px) {
+  .container, .container-lg, .container-md, .container-sm, .container-xl, .container-xxl {
+    max-width: 1500px;
+  }
+  
+  /* Adjust grid for wider screens */
+  .wide-screen-grid .row-cols-xxl-5 > * {
+    flex: 0 0 auto;
+    width: 20%;
+  }
+  
+  .wide-screen-grid .row-cols-xxl-3 > * {
+    flex: 0 0 auto;
+    width: 33.333333%;
+  }
+}
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1600px;
+  }
+}
+
+/* Loading Screen */
+.dashboard-loading {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.loading-spinner {
+  width: 4rem;
+  height: 4rem;
+  border-width: 3px;
+  color: white;
+}
+
+/* Glass Morphism Effects */
+.glass-effect {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 128, 128, 0.1);
+}
+
+.modal-glass {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  boxShadow: 0 25px 50px rgba(0, 128, 128, 0.2);
+}
+
+/* Gradient Backgrounds */
+.gradient-emerald {
+  background: linear-gradient(135deg, #008080 0%, #006666 100%);
+}
+
+.gradient-light-bg {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+}
+
+.gradient-success {
+  background: linear-gradient(135deg, #008080, #20B2AA);
+}
+
+.gradient-green-success {
+  background: linear-gradient(135deg, #008080, #28a745);
+}
+
+/* Card Styles */
+.rounded-card {
+  border-radius: 20px;
+  transition: transform 0.3s ease;
+}
+
+.rounded-card:hover {
+  transform: translateY(-5px);
+}
+
+.rounded-modal {
+  border-radius: 20px;
+}
+
+.rounded-pill-btn {
+  border-radius: 50px;
+}
+
+/* Sweet Card Specific */
+.sweet-card-container {
+  height: 100%;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sweet-card {
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.4s ease;
+}
+
+.sweet-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 20px 40px rgba(0, 128, 128, 0.15);
+}
+
+.card-image-container {
+  height: 200px;
+  overflow: hidden;
+}
+
+.card-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.6s ease;
+}
+
+.card-image:hover {
+  transform: scale(1.1);
+}
+
+.image-gradient-overlay {
+  background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
+}
+
+/* Badge Styles */
+.top-badge {
+  backdrop-filter: blur(4px);
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+}
+
+.category-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  background-color: rgba(0, 128, 128, 0.125);
+  color: #008080;
+}
+
+/* Like Button */
+.like-button {
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(4px);
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.like-button:hover {
+  background-color: rgba(255, 255, 255, 1);
+  transform: scale(1.1);
+}
+
+/* Header Section */
+.dashboard-header {
+  border-radius: 20px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.header-pattern {
+  background-image: radial-gradient(circle at 30% 30%, rgba(255,255,255,0.1) 2px, transparent 2px);
+  background-size: 40px 40px;
+  opacity: 0.3;
+}
+
+.user-avatar {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(4px);
+  border: 3px solid rgba(255, 255, 255, 0.2);
+  width: 200px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+}
+
+/* Stats Card */
+.stats-icon-container {
+  border-radius: 12px;
+  padding: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stats-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  border-radius: 10px;
+  padding: 0.5rem 0.75rem;
+}
+
+/* Recent Activity */
+.activity-item {
+  background-color: #f8f9fa;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.3s ease;
+}
+
+.activity-item:hover {
+  background-color: #e9ecef;
+}
+
+.activity-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(0, 128, 128, 0.125);
+}
+
+.status-badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 6px;
+  padding: 0.25rem 0.5rem;
+}
+
+/* Progress Bars */
+.custom-progress {
+  height: 8px;
+  border-radius: 4px;
+}
+
+.small-progress {
+  height: 6px;
+  border-radius: 3px;
+}
+
+/* Purchase Modal */
+.modal-image {
+  background-size: cover;
+  background-position: center;
+  min-height: 400px;
+  position: relative;
+}
+
+.modal-gradient-overlay {
+  background: linear-gradient(to right, rgba(0, 128, 128, 0.1), transparent);
+}
+
+.quantity-input-group .form-control {
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-align: center;
+  border: none;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 992px) {
+  .user-avatar {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .stats-card {
+    min-height: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .user-avatar {
+    width: 120px;
+    height: 120px;
+  }
+  
+  .top-badge {
+    font-size: 0.7rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .modal-image {
+    min-height: 300px;
+  }
+}
+
+/* Animation Keyframes */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.6s ease-out;
+}
+
+/* Scrollbar Styling */
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #008080 #f8f9fa;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f8f9fa;
+  border-radius: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #008080;
+  border-radius: 3px;
+}
+
+/* Input Groups */
+.quantity-control {
+  border-color: #e9ecef;
+}
+
+.quantity-control:hover {
+  border-color: #008080;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+@media (min-width: 1400px) {
+  .stats-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .stats-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .stats-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 768px) and (max-width: 991px) {
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Reward Progress */
+.reward-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #008080, #20B2AA);
+}
+
+/* Empty States */
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 20px;
+  border: 2px dashed rgba(0, 128, 128, 0.2);
+}
+
+.empty-state-icon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* Price Display */
+.price-display {
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #008080;
+  line-height: 1;
+}
+
+/* Card Grid */
+.card-grid {
+  display: grid;
+  gap: 1.5rem;
+}
+
+@media (min-width: 1400px) {
+  .card-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (min-width: 1200px) and (max-width: 1399px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 992px) and (max-width: 1199px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 991px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -65,7 +65,12 @@ export const authAPI = {
 // Sweets API calls
 export const sweetAPI = {
   getAllSweets: (params) => api.get('/sweets', { params }),
-  searchSweets: (query) => api.get('/sweets/search', { params: { query } }),
+  searchSweets: (query, filters = {}) => {
+    const params = { query };
+    if (filters.minPrice) params.minPrice = filters.minPrice;
+    if (filters.maxPrice) params.maxPrice = filters.maxPrice;
+    return api.get('/sweets/search', { params });
+  },
   getSweetById: (id) => api.get(`/sweets/${id}`),
   createSweet: (sweetData) => {
     // FormData handling is done in the interceptor
@@ -78,6 +83,12 @@ export const sweetAPI = {
   deleteSweet: (id) => api.delete(`/sweets/${id}`),
   purchaseSweet: (id, quantity) => api.post(`/sweets/${id}/purchase`, { quantityToPurchase: quantity }),
   restockSweet: (id, quantity) => api.post(`/sweets/${id}/restock`, { quantityToAdd: quantity }),
+};
+
+// Purchase API calls
+export const purchaseAPI = {
+  getUserPurchases: (params) => api.get('/purchases', { params }),
+  getUserPurchaseStats: () => api.get('/purchases/stats'),
 };
 
 export default api;

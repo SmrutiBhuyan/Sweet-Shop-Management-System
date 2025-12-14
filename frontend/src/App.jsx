@@ -6,15 +6,15 @@ import { AuthProvider } from './contexts/AuthContext';
 import { SweetProvider } from './contexts/SweetContext';
 
 // Import components
-import Navbar from './components/Navbar';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage';
-import SweetDetailPage from './pages/SweetDetailPage';
-import AddSweetPage from './pages/AddSweetPage';
-import EditSweetPage from './pages/EditSweetPage';
-import AdminPanel from './pages/AdminPanel';
+import Navbar from './components/Navbar/Navbar';
+import HomePage from './components/HomePage/HomePage';
+import LoginPage from './components/LoginPage/LoginPage';
+import RegisterPage from './components/Register/RegisterPage';
+import DashboardPage from './components/Dashboard/DashboardPage';
+import SweetDetailPage from './components/SweetDetails/SweetDetailPage';
+import AddSweetPage from './components/AddSweet/AddSweetPage';
+import EditSweetPage from './components/EditSweet/EditSweetPage';
+import AdminPanel from './components/AdminPanel/AdminPanel';
 
 // Import styles
 import 'bootstrap/dist/css/bootstrap.min.css';

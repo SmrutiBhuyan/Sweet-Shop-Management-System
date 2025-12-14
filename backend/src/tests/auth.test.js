@@ -13,7 +13,8 @@ describe('Authentication API', () => {
       const userData = {
         username: 'testuser',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
+        role: 'customer'
       };
 
       const response = await request(app)
@@ -31,7 +32,8 @@ describe('Authentication API', () => {
       const userData = {
         username: 'testuser1',
         email: 'test@example.com',
-        password: 'password123'
+        password: 'password123',
+        role: 'customer'
       };
 
       // First registration

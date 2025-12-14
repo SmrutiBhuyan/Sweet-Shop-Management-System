@@ -1,0 +1,79 @@
+﻿
+### **8. Create AI Usage Documentation**
+
+```bash
+mkdir -p docs
+cat > docs/AI_USAGE.md << 'EOF'
+# AI Usage in Sweet Shop Management System
+
+## Overview
+This project was developed with the assistance of AI tools to enhance productivity, generate boilerplate code, and provide guidance on best practices.
+
+## Tools Used
+1. **GitHub Copilot** - For code completion and suggestions
+2. **ChatGPT/DeepSeek** - For architectural decisions and problem-solving
+3. **Cursor** - For IDE assistance and refactoring
+
+## How AI Was Used
+
+### 1. Project Initialization
+- Generating project structure templates
+- Creating configuration files (.gitignore, package.json)
+- Setting up development environment
+
+### 2. Code Generation
+- Boilerplate code for Express routes and controllers
+- React component templates
+- Test file structures
+- Database schema definitions
+
+### 3. Problem Solving
+- Debugging assistance
+- Performance optimization suggestions
+- Security best practices
+- Error handling patterns
+
+### 4. Documentation
+- README generation
+- Code comments
+- API documentation
+
+## Development Workflow with AI
+
+### TDD Process with AI
+1. **Red Phase**: Write failing tests manually
+2. **Green Phase**: Use AI to generate minimal implementation
+3. **Refactor Phase**: Review and improve AI-generated code
+4. **Documentation**: Use AI to help write clear documentation
+
+### Code Review Process
+- All AI-generated code is reviewed and understood
+- Human judgment is applied to all architectural decisions
+- Tests are written before implementation
+
+## Ethical Considerations
+- AI is used as an assistant, not a replacement for understanding
+- All code is thoroughly tested and reviewed
+- Original thinking is prioritized over AI generation
+- Transparency in AI usage is maintained
+
+## Commit Convention
+All commits with AI assistance include co-author attribution:
+git commit -m "feat: Add user authentication endpoint
+
+Used AI to generate JWT token handling logic and validation middleware.
+
+Co-authored-by: AI Assistant ai@example.com
+
+
+## Impact on Development
+- **Speed**: Faster prototyping and iteration
+- **Quality**: Consistent code patterns and best practices
+- **Learning**: Enhanced understanding through AI explanations
+- **Productivity**: Reduced time on repetitive tasks
+
+## Limitations
+- AI suggestions are verified against project requirements
+- Domain-specific business logic is implemented manually
+- Security-sensitive code is written with careful review
+EOF

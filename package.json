@@ -1,0 +1,26 @@
+{
+  "name": "Sweet Shop Management System",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Full-stack Sweet Shop Management System",
+  "workspaces": [
+    "backend",
+    "frontend"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "test": "npm run test:backend && npm run test:frontend",
+    "install:all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "build": "cd frontend && npm run build"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "keywords": ["sweet-shop", "react", "express", "mongodb", "tdd"],
+  "author": "",
+  "license": "MIT"
+}

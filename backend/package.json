@@ -4,18 +4,18 @@
   "description": "Backend API for Sweet Shop Management System",
   "main": "src/app.js",
   "scripts": {
-  "start": "node src/app.js",
-  "dev": "nodemon src/app.js",
-  "test": "jest --testPathPattern=tests --testTimeout=10000",
-  "test:watch": "jest --testPathPattern=tests --watch --testTimeout=10000",
-  "test:user": "jest src/tests/User.model.test.js --testTimeout=10000",
-  "test:auth": "jest src/tests/auth.utils.test.js src/tests/auth.middleware.test.js --testTimeout=10000",
-  "test:coverage": "jest --testPathPattern=tests --coverage --testTimeout=10000",
-  "seed": "node src/utils/seedData.js",
-  "seed:users": "node src/utils/seedUsers.js",
-  "seed:all": "npm run seed && npm run seed:users",
-  "seed:dev": "NODE_ENV=development npm run seed:all"
-},
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
+    "test": "jest --testPathPatterns=tests --testTimeout=10000",
+    "test:watch": "jest --testPathPattern=tests --watch --testTimeout=10000",
+    "test:user": "jest src/tests/User.model.test.js --testTimeout=10000",
+    "test:auth": "jest src/tests/auth.utils.test.js src/tests/auth.middleware.test.js --testTimeout=10000",
+    "test:coverage": "jest --testPathPattern=tests --coverage --testTimeout=10000",
+    "seed": "node src/utils/seedData.js",
+    "seed:users": "node src/utils/seedUsers.js",
+    "seed:all": "npm run seed && npm run seed:users",
+    "seed:dev": "NODE_ENV=development npm run seed:all"
+  },
   "keywords": [
     "sweet-shop",
     "express",
@@ -29,8 +29,11 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
+    "helmet": "^8.1.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^6.13.0"
+    "mongoose": "^6.13.0",
+    "morgan": "^1.10.1"
   },
   "devDependencies": {
     "@types/express": "^5.0.6",

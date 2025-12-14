@@ -1,0 +1,42 @@
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-12) var(--spacing-4);
+  text-align: center;
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-4);
+  opacity: 0.8;
+}
+
+.emptyTitle {
+  font-size: var(--font-size-xl);
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-2);
+}
+
+.emptyMessage {
+  color: var(--color-gray-600);
+  max-width: 400px;
+  line-height: 1.5;
+  margin-bottom: var(--spacing-4);
+}
+
+.emptyAction {
+  padding: var(--spacing-2) var(--spacing-6);
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  transition: all var(--transition-fast);
+}
+
+.emptyAction:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}

@@ -1,0 +1,117 @@
+.errorBoundary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: var(--spacing-8) var(--spacing-4);
+  background-color: var(--color-light);
+}
+
+.errorContent {
+  max-width: 600px;
+  text-align: center;
+  background-color: white;
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-8) var(--spacing-6);
+  box-shadow: var(--shadow-xl);
+  border: 1px solid var(--color-gray-200);
+}
+
+.errorIcon {
+  font-size: 4rem;
+  margin-bottom: var(--spacing-4);
+}
+
+.errorTitle {
+  font-size: var(--font-size-3xl);
+  color: var(--color-error);
+  margin-bottom: var(--spacing-3);
+}
+
+.errorMessage {
+  color: var(--color-gray-600);
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-6);
+}
+
+.errorActions {
+  display: flex;
+  gap: var(--spacing-3);
+  justify-content: center;
+  margin-bottom: var(--spacing-6);
+}
+
+.retryButton {
+  padding: var(--spacing-3) var(--spacing-6);
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.retryButton:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.homeButton {
+  padding: var(--spacing-3) var(--spacing-6);
+  background-color: var(--color-gray-100);
+  color: var(--color-dark);
+  border-radius: var(--radius-lg);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.homeButton:hover {
+  background-color: var(--color-gray-200);
+  transform: translateY(-2px);
+}
+
+.errorDetails {
+  margin-top: var(--spacing-4);
+  text-align: left;
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.errorDetails summary {
+  padding: var(--spacing-3);
+  background-color: var(--color-gray-100);
+  cursor: pointer;
+  font-weight: 500;
+  color: var(--color-gray-700);
+  transition: background-color var(--transition-fast);
+}
+
+.errorDetails summary:hover {
+  background-color: var(--color-gray-200);
+}
+
+.errorStack {
+  padding: var(--spacing-3);
+  background-color: var(--color-gray-900);
+  color: var(--color-gray-100);
+  font-size: var(--font-size-sm);
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  white-space: pre-wrap;
+  overflow-x: auto;
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+}
+
+@media (max-width: 640px) {
+  .errorContent {
+    padding: var(--spacing-6) var(--spacing-4);
+  }
+  
+  .errorActions {
+    flex-direction: column;
+  }
+}

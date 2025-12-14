@@ -1,0 +1,121 @@
+.skeletonContainer {
+  width: 100%;
+}
+
+.skeletonItem {
+  margin-bottom: var(--spacing-4);
+}
+
+/* Card Skeleton */
+.cardSkeleton {
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.cardSkeleton .image {
+  height: 200px;
+  background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-300) 50%, var(--color-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.cardSkeleton .content {
+  padding: var(--spacing-4);
+}
+
+/* Text Skeleton */
+.textSkeleton {
+  padding: var(--spacing-4);
+}
+
+/* Table Skeleton */
+.tableSkeleton {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.tableRow {
+  display: flex;
+  margin-bottom: var(--spacing-2);
+}
+
+.tableCell {
+  flex: 1;
+  height: 20px;
+  margin-right: var(--spacing-4);
+  background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-300) 50%, var(--color-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+.tableCell:last-child {
+  margin-right: 0;
+}
+
+/* List Skeleton */
+.listSkeleton {
+  padding: var(--spacing-4);
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  margin-bottom: var(--spacing-3);
+}
+
+.bullet {
+  width: 20px;
+  height: 20px;
+  background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-300) 50%, var(--color-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: 50%;
+  margin-right: var(--spacing-3);
+}
+
+.listContent {
+  flex: 1;
+  height: 16px;
+  background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-300) 50%, var(--color-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+}
+
+/* Line for all skeletons */
+.line {
+  height: 12px;
+  background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-300) 50%, var(--color-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-sm);
+  margin-bottom: var(--spacing-3);
+}
+
+.line:last-child {
+  margin-bottom: 0;
+}
+
+/* Default Skeleton */
+.defaultSkeleton {
+  width: 100%;
+  height: 100px;
+  background: linear-gradient(90deg, var(--color-gray-200) 25%, var(--color-gray-300) 50%, var(--color-gray-200) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  border-radius: var(--radius-md);
+}
+
+/* Shimmer Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}

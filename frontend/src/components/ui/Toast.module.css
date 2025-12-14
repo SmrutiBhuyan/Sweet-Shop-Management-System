@@ -1,0 +1,110 @@
+.toast {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-3);
+  padding: var(--spacing-3) var(--spacing-4);
+  background-color: var(--color-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--color-gray-200);
+  min-width: 320px;
+  max-width: 400px;
+  transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.enter {
+  animation: slideIn 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+.leave {
+  animation: slideOut 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55) forwards;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(100px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes slideOut {
+  from {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(100px) scale(0.9);
+  }
+}
+
+.icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: var(--font-size-lg);
+}
+
+.success .icon {
+  background-color: rgba(40, 167, 69, 0.1);
+  color: var(--color-success);
+}
+
+.error .icon {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: var(--color-error);
+}
+
+.info .icon {
+  background-color: rgba(23, 162, 184, 0.1);
+  color: var(--color-info);
+}
+
+.warning .icon {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: var(--color-warning);
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.title {
+  font-weight: 600;
+  color: var(--color-dark);
+  margin-bottom: var(--spacing-1);
+  font-size: var(--font-size-sm);
+}
+
+.message {
+  color: var(--color-gray-700);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+.closeButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  background: none;
+  border: none;
+  color: var(--color-gray-400);
+  cursor: pointer;
+  transition: color var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.closeButton:hover {
+  color: var(--color-gray-700);
+}

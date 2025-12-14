@@ -1,0 +1,349 @@
+.sweetCard {
+  background-color: var(--color-light);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  transition: all var(--transition-base);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.sweetCard:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Image Container */
+.imageContainer {
+  position: relative;
+  height: 200px;
+  overflow: hidden;
+  background-color: var(--color-gray-100);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-base);
+}
+
+.sweetCard:hover .image {
+  transform: scale(1.05);
+}
+
+/* Stock Badges */
+.lowStockBadge,
+.outOfStockBadge {
+  position: absolute;
+  top: var(--spacing-3);
+  left: var(--spacing-3);
+  padding: var(--spacing-1) var(--spacing-2);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 600;
+  z-index: 2;
+}
+
+.lowStockBadge {
+  background-color: var(--color-warning);
+  color: var(--color-dark);
+}
+
+.outOfStockBadge {
+  background-color: var(--color-error);
+  color: white;
+}
+
+/* Quick Actions */
+.quickActions {
+  position: absolute;
+  top: var(--spacing-3);
+  right: var(--spacing-3);
+  display: flex;
+  gap: var(--spacing-1);
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: all var(--transition-base);
+  z-index: 2;
+}
+
+.sweetCard:hover .quickActions {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.quickAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  background-color: var(--color-light);
+  color: var(--color-gray-700);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--transition-fast);
+}
+
+.quickAction:hover {
+  background-color: var(--color-primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+/* Sweet Info */
+.info {
+  padding: var(--spacing-4);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-3);
+}
+
+.category {
+  display: inline-block;
+  padding: var(--spacing-1) var(--spacing-2);
+  background-color: var(--color-gray-100);
+  color: var(--color-gray-600);
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: 500;
+  align-self: flex-start;
+}
+
+.name {
+  font-size: var(--font-size-lg);
+  font-weight: 600;
+  color: var(--color-dark);
+  margin: 0;
+  line-height: 1.3;
+}
+
+.name a {
+  color: inherit;
+  transition: color var(--transition-fast);
+}
+
+.name a:hover {
+  color: var(--color-primary);
+}
+
+.description {
+  color: var(--color-gray-600);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+/* Rating */
+.rating {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-1);
+}
+
+.star {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.starFilled {
+  color: var(--color-warning);
+  font-size: var(--font-size-sm);
+}
+
+.starOutline {
+  color: var(--color-gray-400);
+  font-size: var(--font-size-sm);
+}
+
+.halfStar {
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.halfStar .starFilled {
+  position: absolute;
+  left: 0;
+  width: 50%;
+  overflow: hidden;
+}
+
+.halfStar .starOutline {
+  position: absolute;
+  left: 0;
+}
+
+.ratingCount {
+  color: var(--color-gray-500);
+  font-size: var(--font-size-sm);
+  margin-left: var(--spacing-1);
+}
+
+/* Price and Stock */
+.priceStock {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-2);
+  border-top: 1px solid var(--color-gray-200);
+}
+
+.priceSection {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+}
+
+.price {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.originalPrice {
+  font-size: var(--font-size-sm);
+  color: var(--color-gray-500);
+  text-decoration: line-through;
+}
+
+.stockStatus {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+
+.inStock {
+  color: var(--color-success);
+}
+
+.outOfStock {
+  color: var(--color-error);
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  gap: var(--spacing-2);
+  margin-top: auto;
+}
+
+.quantitySelector {
+  display: flex;
+  align-items: center;
+  background-color: var(--color-gray-100);
+  border-radius: var(--radius-md);
+  padding: 2px;
+  flex: 1;
+  max-width: 120px;
+}
+
+.quantityButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: var(--color-gray-700);
+  background-color: transparent;
+  border-radius: var(--radius-sm);
+  transition: all var(--transition-fast);
+}
+
+.quantityButton:hover:not(:disabled) {
+  background-color: var(--color-gray-200);
+  color: var(--color-primary);
+}
+
+.quantityButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.quantityInput {
+  width: 40px;
+  text-align: center;
+  border: none;
+  background: transparent;
+  font-weight: 600;
+  color: var(--color-dark);
+  font-size: var(--font-size-base);
+  -moz-appearance: textfield;
+}
+
+.quantityInput::-webkit-outer-spin-button,
+.quantityInput::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.addToCartButton {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2);
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--color-primary);
+  color: white;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  transition: all var(--transition-fast);
+  min-height: 36px;
+}
+
+.addToCartButton:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-1px);
+}
+
+.addToCartButton:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.adding {
+  background-color: var(--color-success);
+}
+
+.spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.notifyButton {
+  flex: 1;
+  padding: var(--spacing-2) var(--spacing-3);
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-700);
+  border-radius: var(--radius-md);
+  font-weight: 500;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+@media (max-width: 640px) {
+  .actions {
+    flex-direction: column;
+  }
+  
+  .quantitySelector {
+    max-width: none;
+  }
+  
+  .addToCartButton {
+    width: 100%;
+  }
+}

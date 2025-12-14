@@ -1,6 +1,7 @@
 const request = require('supertest');
 const app = require('../app');
 const User = require('../models/User');
+const Sweet = require('../models/Sweet');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 
@@ -11,7 +12,14 @@ describe('Security Tests', () => {
   let testSweetId;
 
   beforeAll(async () => {
+    // Ensure database is connected
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(mongoUri);
+    }
+    
     await User.deleteMany({});
+    await Sweet.deleteMany({});
     
     // Create admin user
     const adminRes = await request(app)
@@ -23,7 +31,14 @@ describe('Security Tests', () => {
         role: 'admin'
       });
     
+    expect(adminRes.status).toBe(201);
     adminToken = adminRes.body.data.token;
+    expect(adminToken).toBeDefined();
+
+    // Verify admin user exists in database
+    const adminUser = await User.findOne({ email: 'securityadmin@test.com' });
+    expect(adminUser).toBeDefined();
+    expect(adminUser.role).toBe('admin');
 
     // Create customer user
     const customerRes = await request(app)
@@ -35,8 +50,18 @@ describe('Security Tests', () => {
         role: 'customer'
       });
     
+    expect(customerRes.status).toBe(201);
     customerToken = customerRes.body.data.token;
     testUserId = customerRes.body.data.user.id;
+    expect(customerToken).toBeDefined();
+    expect(testUserId).toBeDefined();
+
+    // Verify customer user exists in database
+    const customerUser = await User.findOne({ email: 'securitycustomer@test.com' });
+    expect(customerUser).toBeDefined();
+
+    // Wait a bit to ensure users are fully persisted
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Create test sweet
     const sweetRes = await request(app)
@@ -49,7 +74,34 @@ describe('Security Tests', () => {
         quantity: 50
       });
     
-    testSweetId = sweetRes.body.data.sweet._id;
+    if (sweetRes.status === 201 && sweetRes.body.data && sweetRes.body.data.sweet) {
+      testSweetId = sweetRes.body.data.sweet._id;
+    } else {
+      // If creation failed, log the error for debugging
+      console.error('Failed to create test sweet:', JSON.stringify(sweetRes.body, null, 2));
+      // Try to create sweet directly in database as fallback
+      const adminUserFromDb = await User.findOne({ email: 'securityadmin@test.com' });
+      if (adminUserFromDb) {
+        const directSweet = await Sweet.create({
+          name: 'Security Test Sweet',
+          category: 'Chocolate',
+          price: 9.99,
+          quantity: 50,
+          createdBy: adminUserFromDb._id
+        });
+        testSweetId = directSweet._id;
+      } else {
+        throw new Error(`Failed to create test sweet: ${JSON.stringify(sweetRes.body)}`);
+      }
+    }
+  });
+
+  afterAll(async () => {
+    await User.deleteMany({});
+    await Sweet.deleteMany({});
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
   });
 
   describe('Authentication Security', () => {

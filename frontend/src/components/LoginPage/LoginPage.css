@@ -1,4 +1,4 @@
-/* LoginPage.css */
+LoginPage.css
 
 /* Define the Color Palette as CSS Variables */
 :root {
@@ -161,6 +161,9 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  width: 171vw;
+  position: relative;
+  right: 665px;
 }
 
 .login-col {

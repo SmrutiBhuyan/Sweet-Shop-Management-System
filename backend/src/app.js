@@ -5,7 +5,13 @@ const dotenv = require('dotenv');
 const connectToDatabase = require('./config/database');
 
 // Load environment variables from .env file
-dotenv.config();
+// In test environment, don't override already set environment variables
+if (process.env.NODE_ENV !== 'test') {
+  dotenv.config();
+} else {
+  // In test environment, load .env.test but don't override existing env vars
+  dotenv.config({ path: '.env.test', override: false });
+}
 
 // Import route files
 const authRoutes = require('./routes/authRoutes');

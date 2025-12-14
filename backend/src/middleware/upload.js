@@ -41,5 +41,8 @@ const upload = multer({
   }
 });
 
+// Export for testing
 module.exports = upload;
+module.exports.storage = storage;
+module.exports.fileFilter = fileFilter;
 

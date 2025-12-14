@@ -321,18 +321,19 @@ describe('Validation Middleware', () => {
       };
       const next = jest.fn();
       
-      const mockErrors = {
-        isEmpty: () => true
-      };
-      
-      // Mock validationResult
-      jest.spyOn(require('express-validator'), 'validationResult')
-        .mockReturnValue(mockErrors);
+      // Mock validationResult to return empty errors
+      jest.spyOn(require('express-validator'), 'validationResult').mockReturnValue({
+        isEmpty: () => true,
+        array: () => []
+      });
       
       handleValidationErrors(req, res, next);
       
       expect(next).toHaveBeenCalled();
       expect(res.status).not.toHaveBeenCalled();
+      
+      // Restore mock
+      jest.restoreAllMocks();
     });
 
     it('should return 400 with validation errors', () => {
@@ -345,15 +346,13 @@ describe('Validation Middleware', () => {
       };
       const next = jest.fn();
       
-      const mockErrors = {
+      // Mock validationResult to return errors
+      jest.spyOn(require('express-validator'), 'validationResult').mockReturnValue({
         isEmpty: () => false,
         array: () => [
           { path: 'username', msg: 'Username is required' }
         ]
-      };
-      
-      jest.spyOn(require('express-validator'), 'validationResult')
-        .mockReturnValue(mockErrors);
+      });
       
       handleValidationErrors(req, res, next);
       
@@ -363,6 +362,9 @@ describe('Validation Middleware', () => {
         errors: expect.any(Array)
       });
       expect(next).not.toHaveBeenCalled();
+      
+      // Restore mock
+      jest.restoreAllMocks();
     });
   });
 });

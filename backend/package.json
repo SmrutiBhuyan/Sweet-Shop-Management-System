@@ -9,7 +9,8 @@
     "seed": "node src/utils/seedData.js",
     "seed:users": "node src/utils/seedUsers.js",
     "test": "cross-env NODE_ENV=test jest",
-    "test:unit": "jest --testPathPattern=\"*Model.test.js|*Middleware.test.js|validation.test.js\"",
+    "test:verbose": "cross-env NODE_ENV=test jest --verbose",
+    "test:unit": "cross-env NODE_ENV=test jest --testPathPattern=\"*Model.test.js|*Middleware.test.js|validation.test.js\"",
     "test:integration": "jest --testPathPattern=\"auth.test.js|sweet.test.js\"",
     "test:e2e": "jest --testPathPattern=\"e2e.test.js\"",
     "test:security": "jest --testPathPattern=\"security.test.js\"",
@@ -18,8 +19,7 @@
     "test:watch": "jest --watch",
     "test:parallel": "jest --maxWorkers=4",
     "test:ci": "npm run test:unit && npm run test:integration && npm run test:security",
-    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:security && npm run test:performance",
-    "pretest": "node -e \"if (process.env.NODE_ENV !== 'test') { console.error('Tests must be run with NODE_ENV=test'); process.exit(1); }\""
+    "test:all": "npm run test:unit && npm run test:integration && npm run test:e2e && npm run test:security && npm run test:performance"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

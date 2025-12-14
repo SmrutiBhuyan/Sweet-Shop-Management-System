@@ -118,33 +118,38 @@
 /* Registration Card Container */
 .register-card-container {
   width: 100%;
-  max-width: 1000px;
+  max-width: 100%; /* FIXED: Allows it to take full width */
   z-index: 1;
   position: relative;
   animation: fadeIn 0.6s ease-out;
 }
 
 .register-main-row {
-  margin: 0;
+  margin: 0 auto; 
   border-radius: 20px;
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-  width: 80vw;
-  position: relative;
-  right: 110px;
-  max-height: 90vh;
+  width: 100%; 
+  max-width: 100%; /* FIXED: Allows it to take full width */
+  position: static;
+  /* REMOVED: max-height: 90vh; to prevent content cutoff */
 }
 
 /* Visual Column */
 .register-visual-col {
   display: none;
-  padding: 0;
+  padding: 2.5rem 1rem;
   position: relative;
+  background: linear-gradient(135deg, var(--emerald-green) 0%, var(--dark-emerald) 100%);
+  color: var(--light-text);
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 @media (min-width: 768px) {
   .register-visual-col {
-    display: block;
+    display: flex;
   }
 }
 
@@ -172,7 +177,7 @@
 .sweet-image-circle {
   width: 120px;
   height: 120px;
-  background-image: url('/HomePageSweet2.png');
+  background-image: url('/HomePageSweet2.png'); 
   background-size: cover;
   background-position: center;
   border-radius: 50%;
@@ -185,6 +190,7 @@
 .benefits-container {
   width: 100%;
   padding: 0 1rem;
+  max-width: 250px; 
 }
 
 .benefit-item {
@@ -522,24 +528,13 @@
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .register-main-row {
-    right: 90px;
-    width: 85vw;
-  }
-}
-
-@media (max-width: 992px) {
-  .register-main-row {
-    right: 70px;
-    width: 90vw;
-  }
-}
+/* Removed max-width overrides as main elements are now 100% width */
 
 @media (max-width: 768px) {
   .register-main-row {
     right: 0;
     width: 100%;
+    max-width: 100%; 
     max-height: none;
   }
   

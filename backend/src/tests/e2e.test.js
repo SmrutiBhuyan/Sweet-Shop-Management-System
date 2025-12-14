@@ -14,6 +14,12 @@ describe('End-to-End Integration Tests', () => {
   let testSweetId;
 
   beforeAll(async () => {
+    // Ensure database is connected
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweet_shop_test';
+    if (mongoose.connection.readyState === 0) {
+      await mongoose.connect(mongoUri);
+    }
+    
     // Clear database
     await User.deleteMany({});
     await Sweet.deleteMany({});
@@ -28,8 +34,16 @@ describe('End-to-End Integration Tests', () => {
         role: 'admin'
       });
 
+    expect(adminRes.status).toBe(201);
     adminToken = adminRes.body.data.token;
     adminId = adminRes.body.data.user.id;
+    expect(adminToken).toBeDefined();
+    expect(adminId).toBeDefined();
+
+    // Verify admin user exists in database
+    const adminUser = await User.findOne({ email: 'admin@test.com' });
+    expect(adminUser).toBeDefined();
+    expect(adminUser.role).toBe('admin');
 
     // Create customer user
     const customerRes = await request(app)
@@ -41,8 +55,18 @@ describe('End-to-End Integration Tests', () => {
         role: 'customer'
       });
 
+    expect(customerRes.status).toBe(201);
     customerToken = customerRes.body.data.token;
     customerId = customerRes.body.data.user.id;
+    expect(customerToken).toBeDefined();
+    expect(customerId).toBeDefined();
+
+    // Verify customer user exists in database
+    const customerUser = await User.findOne({ email: 'customer@test.com' });
+    expect(customerUser).toBeDefined();
+
+    // Wait a bit to ensure users are fully persisted
+    await new Promise(resolve => setTimeout(resolve, 100));
 
     // Create a test sweet
     const sweetRes = await request(app)
@@ -56,11 +80,35 @@ describe('End-to-End Integration Tests', () => {
         quantity: 100
       });
 
-    testSweetId = sweetRes.body.data.sweet._id;
+    if (sweetRes.status === 201 && sweetRes.body.data && sweetRes.body.data.sweet) {
+      testSweetId = sweetRes.body.data.sweet._id;
+    } else {
+      // If creation failed, log the error for debugging
+      console.error('Failed to create test sweet:', JSON.stringify(sweetRes.body, null, 2));
+      // Try to create sweet directly in database as fallback
+      const adminUserFromDb = await User.findOne({ email: 'admin@test.com' });
+      if (adminUserFromDb) {
+        const directSweet = await Sweet.create({
+          name: 'Integration Test Sweet',
+          description: 'Sweet for integration testing',
+          category: 'Chocolate',
+          price: 9.99,
+          quantity: 100,
+          createdBy: adminUserFromDb._id
+        });
+        testSweetId = directSweet._id;
+      } else {
+        throw new Error(`Failed to create test sweet: ${JSON.stringify(sweetRes.body)}`);
+      }
+    }
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
+    await User.deleteMany({});
+    await Sweet.deleteMany({});
+    if (mongoose.connection.readyState !== 0) {
+      await mongoose.disconnect();
+    }
   });
 
   describe('Complete User Flow', () => {

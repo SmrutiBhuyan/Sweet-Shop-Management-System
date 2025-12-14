@@ -32,7 +32,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 25.00,
         quantity: 150,
-        imageUrl: 'https://via.placeholder.com/400x300/FF69B4/FFFFFF?text=Gulab+Jamun',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNxeU5QrN64ZkJIkDkdV3jPDFgYHrEu_wcSE_PpkiQvx_xKXu6OkVsEFgBX22wTQIkeHVeqZPKFYNDfBV8CAIB1dW3HeJIJQUYMbsBtlkv&s=10',
         createdBy: adminUser._id
       },
       {
@@ -41,7 +41,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 30.00,
         quantity: 120,
-        imageUrl: 'https://via.placeholder.com/400x300/FFC0CB/000000?text=Rasgulla',
+        imageUrl: 'https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Rasgulla.jpg/1200px-Rasgulla.jpg',
         createdBy: adminUser._id
       },
       {
@@ -50,7 +50,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 450.00,
         quantity: 80,
-        imageUrl: 'https://via.placeholder.com/400x300/FFD700/000000?text=Kaju+Katli',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSD9LR2mQN1M1DxoejIxCl2YdxYIiWx6hXofFBUlZ_lPk7BszhKAyWOWgve62BvTboTaxvtWLt6_C5PsrMziFfM5O5vNGTnHTc0IElGSL_3&s=10',
         createdBy: adminUser._id
       },
       {
@@ -59,7 +59,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 20.00,
         quantity: 200,
-        imageUrl: 'https://via.placeholder.com/400x300/FF6347/FFFFFF?text=Jalebi',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSm5QMKr9E7yLrb7983gcs-UMl2mSITi_5qd2Bs1ri-aOLXP2w15Ra9yLCVHCislRPbgT15lcBTGl23FpEasjE0XHREokl3CZjAzMZ76F16jw&s=10',
         createdBy: adminUser._id
       },
       {
@@ -68,7 +68,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 35.00,
         quantity: 100,
-        imageUrl: 'https://via.placeholder.com/400x300/F5F5DC/000000?text=Barfi',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT0IwGiWGVciJaLh2k8FiF7TInV4kJyJvJ_cQ&s',
         createdBy: adminUser._id
       },
       {
@@ -77,7 +77,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 15.00,
         quantity: 250,
-        imageUrl: 'https://via.placeholder.com/400x300/DAA520/000000?text=Ladoo',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRBjeabDEEJ9hf5nJ0xAfmjdJHLo9tnAOIxuNd20cqNdiphO3AByW1DLy-_9rK6GTdkY8ZOVMrOvT4J1DEv6xKkAzNyOrFCx43CKQYD-sQ&s=10',
         createdBy: adminUser._id
       },
       {
@@ -86,7 +86,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 40.00,
         quantity: 60,
-        imageUrl: 'https://via.placeholder.com/400x300/FFB6C1/000000?text=Rasmalai',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQR3Im_5UJLpc305wyEJ3M8q7FYaPeUNHW_v16J9FUyljzItD8mjC20wSNgoUOjOFn9l5yGdYKq97ZTAX3BWk4l1wvCR8P2MOXq0YiT8B00pA&s=10',
         createdBy: adminUser._id
       },
       {
@@ -95,7 +95,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 30.00,
         quantity: 90,
-        imageUrl: 'https://via.placeholder.com/400x300/FFD700/000000?text=Halwa',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTwzEWizHA3xixMvf9qIcocPqtuDiX0GK3Hu54y2rvf90UJc5jeJHPruA7UqJqM8zdt2QgChm3lekRprWWcSddONzIfT2OOEuWQmNSnBAY&s=10',
         createdBy: adminUser._id
       },
       {
@@ -104,7 +104,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 50.00,
         quantity: 70,
-        imageUrl: 'https://via.placeholder.com/400x300/FFC0CB/000000?text=Peda',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQKcwRXEFXLiDd3aippLNSWduBvHnFGzjj6ghkIP9KgNXVkO-b8Ju4VtZFA-SruJSsC5U_PqvB8fV3c-zRHkjfraQHDp1we9D4Lm746lpnVLQ&s=10',
         createdBy: adminUser._id
       },
       {
@@ -113,7 +113,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 180.00,
         quantity: 50,
-        imageUrl: 'https://via.placeholder.com/400x300/F5F5DC/000000?text=Soan+Papdi',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRp1gVS2EEttJLvucKmPDpQfkOMg_MHTGQy5CBQzRPUagmOKQtpZzHobj_K8NZEIUcBZqeXNy_dkQMYRSAQjeO2oikY61f75EyABy097rs&s=10',
         createdBy: adminUser._id
       },
       {
@@ -122,7 +122,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 20.00,
         quantity: 180,
-        imageUrl: 'https://via.placeholder.com/400x300/DAA520/000000?text=Besan+Ladoo',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSKBB-sQNO17hJkZ99fp5vGiyn02EQC6GX0AxmirXbuCaf4zOcyCZ1QcTiLICi18XcoIA2of0Bqq8MS89BBq5HZTIrsNGHBLL945d96kO35OQ&s=10',
         createdBy: adminUser._id
       },
       {
@@ -131,7 +131,7 @@ const seedSweets = async () => {
         category: 'Traditional',
         price: 35.00,
         quantity: 40,
-        imageUrl: 'https://via.placeholder.com/400x300/FFE4B5/000000?text=Kheer',
+        imageUrl: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTlv-2_K8e1XT7WwbUFN_S-XufuquHS6q6L52FfOvXFybjVgiZHi3x8KTobdEvQkkunl7CoAiF1szUuGtJo08YlsPfjGHcykPQDA2IkRnq8&s=10',
         createdBy: adminUser._id
       }
     ];
